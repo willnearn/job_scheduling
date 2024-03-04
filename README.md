@@ -23,5 +23,23 @@
 - Maximize goodness for the week's schedule
 - Avoid using brute force methods (time complexity is something like a factorial on another factorial)
 
+## Current State
+### Complete
+- Given a `d`x`w`x`j` matrix of "happiness preference" and the number of days that each worker has off per week, it'll generate the optimal schedule with the following constraints:
+  - No more than one worker per job per day (if you want multiple in a day, you can do something like Field1, Field2, Field3 are all separate jobs
+  - No more than one job per worker per day
+  - Workers have `num_days_off_per_week` days off per week
+  
+### TODO
+- Test with more complete data
+- Input manager happiness and worker happiness separately + combine them
+- Feature: Allow workers to specify days that they want off
+- Feature: Allow workers to specify that they want to have a different number of days off
+- Feature: Allow workers to specify that they want to be off together on certain days (TBD-- may be too complex)
+- Output decisions onto a schedule in e.g. in a .csv
+- Take in data more smoothly
+- Feature: allow workers to trade off which days they're working
+
 ## Notes
 - [PuLP](https://coin-or.github.io/pulp/)
+- [Google OR-Tools](https://developers.google.com/optimization/introduction/python)
