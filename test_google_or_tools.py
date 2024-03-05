@@ -4,7 +4,7 @@ Will Nearn
 Assignment Problem Example
 based off of example in https://developers.google.com/optimization/assignment/assignment_example, but modified for my understanding
 """
-
+import pandas as pd
 from ortools.linear_solver import pywraplp
 
 def print_preference_sums(preferences):
@@ -17,6 +17,9 @@ def print_preference_sums(preferences):
 
 
 def main():
+    worker_names = ["Amber", "Nearn", "Rob", "Elinor", "Mariam"] #Need to pair this with the input data and extract it
+    job_names = ["Konalani", "Hilltop Opener", "Hilltop Closer", "Field"] #Best to pair this with the input data and extract it
+    day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] #I'm fine with this one staying hard-coded
     day_preferences = [  #Rows are workers, columns are jobs
         # KL, HTO, HTC, Field
         [0.6, 0.2, 0.1, 0.1], #Amber
@@ -98,17 +101,23 @@ def main():
         if status == pywraplp.Solver.FEASIBLE:
             print("Good solution found.")
         print(f"Total Happiness = {solver.Objective().Value()}\n")
+        data = {} #For the output DataFrame
         for d in range(num_days):
             print(f"\n\t---- Day {d} ----")
+            day_assignments = {day_names[d] : ["NOBODY" for _ in range(num_jobs)]}
             for w in range(num_workers):
                 assigned = False
                 for j in range(num_jobs):
                     # Test if assignment_matrix[d,w,j] is 1 (with tolerance for floating point arithmetic).
                     if assignment_matrix[d, w, j].solution_value() > 0.5:
                         print(f"Worker {w} assigned to task {j}." + f" Happiness: {week_preferences[d][w][j]}")
+                        day_assignments[day_names[d]][j] = worker_names[w]
                         assigned = True
                 if not assigned:
                     print(f"Worker {w} unassigned.")
+            data[day_names[d]] = day_assignments[day_names[d]]
+        df = pd.DataFrame(data, index=job_names)
+        df.to_csv("output.csv", index=True)
     else:
         print("No solution found.")
 
