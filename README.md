@@ -37,9 +37,19 @@
 - Test with more complete data
 - Feature: Allow workers to specify days that they want off
 - Feature: Allow workers to specify that they want to have a different number of days off
-- Feature: Allow workers to specify that they want to be off together on certain days (TBD-- may be too complex)
+- Feature: Allow workers to specify that they want to be off together (or NOT off together) on certain days (TBD-- may be too complex)
 - Take in data more smoothly
-- Feature: allow workers to trade off which days they're working
+- Feature: allow workers to trade off which days they're working (Brett said that they'll manage who can trade)
+
+
+## Brett Meeting Notes
+- Catch case for people requesting off days way into the future
+- Tracking training is helpful
+- When switching shifts, don't switch into a training shift
+- Bunch people together in field
+- Friday and Saturday off in the field
+- Make worker end dates
+- Write instructions
 
 ## Notes
 - [PuLP](https://coin-or.github.io/pulp/)
