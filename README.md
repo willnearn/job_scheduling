@@ -29,6 +29,7 @@
   - No more than one worker per job per day (if you want multiple in a day, you can do something like Field1, Field2, Field3 are all separate jobs
   - No more than one job per worker per day
   - Workers have `num_days_off_per_week` days off per week
+- Output decisions onto a schedule in e.g. in a .csv
   
 ### TODO
 - Test with more complete data
@@ -36,7 +37,6 @@
 - Feature: Allow workers to specify days that they want off
 - Feature: Allow workers to specify that they want to have a different number of days off
 - Feature: Allow workers to specify that they want to be off together on certain days (TBD-- may be too complex)
-- Output decisions onto a schedule in e.g. in a .csv
 - Take in data more smoothly
 - Feature: allow workers to trade off which days they're working
 
