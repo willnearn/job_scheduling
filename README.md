@@ -30,10 +30,10 @@
   - No more than one job per worker per day
   - Workers have `num_days_off_per_week` days off per week
 - Output decisions onto a schedule in e.g. in a .csv
+- Input manager happiness and worker happiness separately + combine them
   
 ### TODO
 - Test with more complete data
-- Input manager happiness and worker happiness separately + combine them
 - Feature: Allow workers to specify days that they want off
 - Feature: Allow workers to specify that they want to have a different number of days off
 - Feature: Allow workers to specify that they want to be off together on certain days (TBD-- may be too complex)
