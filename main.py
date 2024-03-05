@@ -6,6 +6,7 @@ based off of example in https://developers.google.com/optimization/assignment/as
 """
 import pandas as pd
 import numpy as np
+import warnings
 from ortools.linear_solver import pywraplp
 
 def print_preference_sums(preferences):
@@ -17,12 +18,65 @@ def print_preference_sums(preferences):
         rownum += 1
 
 
+def cleanWorkerFile(worker_file_name, cleaned_file_name, manager_file_name):
+    # worker_file_name:
+    #  - Is a downloaded Google Sheet, where everyone can only edit the page with their name on it
+    #  - Should be filled out as "0" for jobs that the worker can't do 
+    #  - Should contain (0,1] for jobs that the worker can do, where 1 means that they really want to do that job on that day
+    # cleaned_file_name will be the location of the cleaned version of the file stored at `worker_file_name`
+    # manager_file_name should be identical to the worker preferences file except the data points are made by the managers
+
+    # CONFIGUREABLE
+    unable_score = 0
+    high_score = 1 # Anything higher than this will be reset to this
+    low_reset_score = np.float64(0.3) #Any score at or below unable_score for a task that a worker is able to do will be reset to this
+    
+    worker_file = pd.read_excel(worker_file_name, sheet_name=None, index_col=0)
+    manager_file = pd.read_excel(manager_file_name, sheet_name=None, index_col=0)
+
+    for name in worker_file.keys():
+        wdf = worker_file[name] #Extract <name>'s page
+        mdf = manager_file[name]
+        if wdf.shape != mdf.shape or not wdf.columns.equals(mdf.columns) or not wdf.index.equals(mdf.index):
+            print(f"There's an error on the formatting of {name}'s schedule in {worker_file_name}, either with the row names or the column names -- go check it out")
+            return False
+        wdf.fillna(0) # Fill NaNs with 0s
+        mdf.fillna(0) 
+        wdf[wdf<0] = 0 # Replace negative values with 0 
+        mdf[mdf<0] = 0 
+        mdf[mdf>high_score] = high_score # Replace values above the max with the max value
+        wdf[wdf>high_score] = high_score
+
+        #Find where workers put that they're unable to do jobs they're able to do and fix it
+        mismatched_indices = wdf[(wdf==unable_score) & (mdf != unable_score)]  
+        if not mismatched_indices.isnull().values.all():
+            print(f"\n{name} screwed up and said that they couldn't work a job that they're trained to do. Resetting the values below that aren't 'NaN' to {low_reset_score}")
+            print(mismatched_indices)
+            with warnings.catch_warnings(): #It gives a warning that `low_reset_score` isn't the right data type?
+                warnings.simplefilter("ignore", category=FutureWarning)
+                wdf[mismatched_indices.notna()] = low_reset_score 
+    
+    # Write to Excel
+    with pd.ExcelWriter(cleaned_file_name, engine='xlsxwriter') as writer:
+        for name, df in worker_file.items():
+            df.to_excel(writer, sheet_name=name)
+    return True
+    
+
 def main():
-    worker_xlsx = pd.read_excel('worker_preferences.xlsx', sheet_name=None, index_col=0)
-    manager_xlsx = pd.read_excel('manager_preferences.xlsx', sheet_name=None, index_col=0)
-    worker_names = list(worker_xlsx.keys()) # MAKE SURE THAT THE NAMES ARE THE SAME ON manager_preferences.xlsx AS worker_preferences.xlsx !!!
-    job_names = list(worker_xlsx[worker_names[0]].index)  # MAKE SURE THAT THE SAME JOB NAMES EXIST ON ALL SHEETS OF manager_preferences.xlsx AND worker_preferences.xlsx !!!
-    day_names = list(worker_xlsx[worker_names[0]].head()) # MAKE SURE THAT THE SAME DAY NAMES EXIST ON ALL SHEETS OF manager_preferences.xlsx AND worker_preferences.xlsx !!!
+    dirty_worker_preferences_file_name = "worker_preferences.xlsx"
+    clean_worker_preferences_file_name = "cleaned_worker_preferences.xlsx"
+    manager_preferences_file_name = "manager_preferences.xlsx"
+    if not cleanWorkerFile(dirty_worker_preferences_file_name, 
+                    clean_worker_preferences_file_name, 
+                    manager_preferences_file_name):
+        print("\nThere was an error in cleaning up the file. Please investigate. Exiting out of the program. Please re-run this program after fixing the data")
+        return
+    worker_xlsx = pd.read_excel(clean_worker_preferences_file_name, sheet_name=None, index_col=0)
+    manager_xlsx = pd.read_excel(manager_preferences_file_name, sheet_name=None, index_col=0)
+    worker_names = list(worker_xlsx.keys()) # MAKE SURE THAT THE NAMES ARE THE SAME ON THE MANAGER PREFERENCE FILE AS THE WORKER PREFERENCE FILE !!!
+    job_names = list(worker_xlsx[worker_names[0]].index)  # MAKE SURE THAT THE SAME JOB NAMES EXIST ON ALL SHEETS OF THE MANAGER PREFERENCE AND THE WORKER PREFERENCE FILE !!!
+    day_names = list(worker_xlsx[worker_names[0]].head()) # MAKE SURE THAT THE SAME DAY NAMES EXIST ON ALL SHEETS OF THE MANAGER PREFERENCE AND THE WORKER PREFERENCE FILE !!!
     week_preferences = []
     for index in range(len(worker_names)):
         week_preferences.append(np.multiply(
