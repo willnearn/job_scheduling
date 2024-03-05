@@ -25,12 +25,13 @@
 
 ## Current State
 ### Complete
-- Given a `d`x`w`x`j` matrix of "happiness preference" and the number of days that each worker has off per week, it'll generate the optimal schedule with the following constraints:
+- Input manager happiness and worker happiness separately + combine them into a "happiness table"
+- Given a `d`x`w`x`j` "happiness table" and the number of days that each worker has off per week, it'll generate the optimal schedule with the following constraints:
   - No more than one worker per job per day (if you want multiple in a day, you can do something like Field1, Field2, Field3 are all separate jobs
   - No more than one job per worker per day
   - Workers have `num_days_off_per_week` days off per week
-- Output decisions onto a schedule in e.g. in a .csv
-- Input manager happiness and worker happiness separately + combine them
+- Output decisions onto a schedule in a .csv
+
   
 ### TODO
 - Test with more complete data
