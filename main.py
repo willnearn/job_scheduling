@@ -67,13 +67,7 @@ def cleanWorkerFile(worker_file_name, cleaned_file_name, manager_file_name):
     return True
     
 
-def main():
-    # CONFIGUREABLE
-    dirty_worker_preferences_file_name = "worker_preferences.xlsx"
-    clean_worker_preferences_file_name = "cleaned_worker_preferences.xlsx"
-    manager_preferences_file_name = "manager_preferences.xlsx"
-    num_days_off_per_week = 3 #CONFIGUREABLE
-
+def main(dirty_worker_preferences_file_name, clean_worker_preferences_file_name, manager_preferences_file_name, num_days_off_per_week):
     if not cleanWorkerFile(dirty_worker_preferences_file_name, 
                     clean_worker_preferences_file_name, 
                     manager_preferences_file_name):
@@ -90,7 +84,6 @@ def main():
             worker_xlsx[worker_names[index]].to_numpy(),
             manager_xlsx[worker_names[index]].to_numpy()
         ))
-
     
     num_workers = len(week_preferences)
     num_jobs = len(week_preferences[0])
@@ -146,7 +139,7 @@ def main():
         data = {} #For the output DataFrame
         for d in range(num_days):
             print(f"\n\t---- {day_names[d]} ----")
-            day_assignments = {day_names[d] : ["NOBODY" for _ in range(num_jobs)]}
+            day_assignments = {day_names[d] : [" " for _ in range(num_jobs)]}
             for w in range(num_workers):
                 assigned = False
                 for j in range(num_jobs):
@@ -166,4 +159,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    dirty_worker_preferences_file_name = "worker_preferences.xlsx"
+    clean_worker_preferences_file_name = "cleaned_worker_preferences.xlsx"
+    manager_preferences_file_name = "manager_preferences.xlsx"
+    num_days_off_per_week = 2
+    main(dirty_worker_preferences_file_name, clean_worker_preferences_file_name, manager_preferences_file_name, num_days_off_per_week)
