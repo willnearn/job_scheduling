@@ -65,14 +65,37 @@ def cleanWorkerFile(worker_file_name, cleaned_file_name, manager_file_name):
         for name, df in worker_file.items(): # Editing the isolated DataFrame objects earlier also edits the DataFrame objects inside worker_file
             df.to_excel(writer, sheet_name=name)
     return True
-    
 
-def main(dirty_worker_preferences_file_name, clean_worker_preferences_file_name, manager_preferences_file_name, num_days_off_per_week):
+
+def read_in_off_day_requests(file_name, names):
+    # A convenience function to read in off together / not off together requests
+    df = pd.DataFrame()
+    if file_name is not None:
+        df = pd.read_csv(file_name)
+    for index, row in df.iterrows():
+        for elem in row:
+            if elem not in names:
+                print(f"Hold your horses there, buddy. {file_name} had an incorrect worker name in it. \nWrong Name: {elem}\nAvailable Names: {names}. Skipping this guy")
+                df.drop(index, inplace=True)
+                break
+    df.reset_index(drop=True, inplace=True)
+    return df
+
+
+
+def main(dirty_worker_preferences_file_name, 
+         clean_worker_preferences_file_name, 
+         manager_preferences_file_name, 
+         num_days_off_per_week, 
+         not_off_together_file=None,
+         off_together_file=None):
+    # Clean up data
     if not cleanWorkerFile(dirty_worker_preferences_file_name, 
                     clean_worker_preferences_file_name, 
                     manager_preferences_file_name):
         print("\nThere was an error in cleaning up the file. Please investigate. Exiting out of the program. Please re-run this program after fixing the data")
         return
+    # Read in data
     worker_xlsx = pd.read_excel(clean_worker_preferences_file_name, sheet_name=None, index_col=0)
     manager_xlsx = pd.read_excel(manager_preferences_file_name, sheet_name=None, index_col=0)
     worker_names = list(worker_xlsx.keys()) # MAKE SURE THAT THE NAMES ARE THE SAME ON THE MANAGER PREFERENCE FILE AS THE WORKER PREFERENCE FILE !!!
@@ -83,8 +106,11 @@ def main(dirty_worker_preferences_file_name, clean_worker_preferences_file_name,
         week_preferences.append(np.multiply(
             worker_xlsx[worker_names[index]].to_numpy(),
             manager_xlsx[worker_names[index]].to_numpy()
-        ))
-    
+        ))    
+    off_together_df = read_in_off_day_requests(off_together_file, worker_names)
+    not_off_together_df = read_in_off_day_requests(not_off_together_file, worker_names)
+
+    # Analysis
     num_workers = len(week_preferences)
     num_jobs = len(week_preferences[0])
     num_days = len(week_preferences[0][0])
@@ -162,5 +188,12 @@ if __name__ == "__main__":
     dirty_worker_preferences_file_name = "worker_preferences.xlsx"
     clean_worker_preferences_file_name = "cleaned_worker_preferences.xlsx"
     manager_preferences_file_name = "manager_preferences.xlsx"
+    not_off_together_file = "not_off_together.csv"
+    off_together_file = "off_together.csv"
     num_days_off_per_week = 2
-    main(dirty_worker_preferences_file_name, clean_worker_preferences_file_name, manager_preferences_file_name, num_days_off_per_week)
+    main(dirty_worker_preferences_file_name, 
+         clean_worker_preferences_file_name, 
+         manager_preferences_file_name, 
+         num_days_off_per_week,
+         not_off_together_file=not_off_together_file,
+         off_together_file=off_together_file)
