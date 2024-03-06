@@ -2,7 +2,7 @@
 Will Nearn 
 4 March 2024
 Assignment Problem Example
-based off of example in https://developers.google.com/optimization/assignment/assignment_example, but modified for my understanding
+based off of example in https://developers.google.com/optimization/assignment/assignment_example, but modified for my use
 """
 import pandas as pd
 import numpy as np
@@ -19,15 +19,19 @@ def print_preference_sums(preferences):
 
 
 def cleanWorkerFile(worker_file_name, cleaned_file_name, manager_file_name):
+    # Take in the names of the messy worker file, clean it up (partly based on the manager file), and save the cleaned version at `cleaned_file_name`.
+    # PARAMS:
     # worker_file_name:
     #  - Is a downloaded Google Sheet, where everyone can only edit the page with their name on it
     #  - Should be filled out as "0" for jobs that the worker can't do 
     #  - Should contain (0,1] for jobs that the worker can do, where 1 means that they really want to do that job on that day
     # cleaned_file_name will be the location of the cleaned version of the file stored at `worker_file_name`
     # manager_file_name should be identical to the worker preferences file except the data points are made by the managers
+    # RETURNS:
+    # void, but it writes to an .xlsx file
 
     # CONFIGUREABLE
-    unable_score = 0
+    unable_score = 0 # If a worker gives this score, that indicates that they can't do the given task -- days off should be given in the manager preferences Excel worksheet
     high_score = 1 # Anything higher than this will be reset to this
     low_reset_score = np.float64(0.3) #Any score at or below unable_score for a task that a worker is able to do will be reset to this
     
@@ -35,10 +39,10 @@ def cleanWorkerFile(worker_file_name, cleaned_file_name, manager_file_name):
     manager_file = pd.read_excel(manager_file_name, sheet_name=None, index_col=0)
 
     for name in worker_file.keys():
-        wdf = worker_file[name] #Extract <name>'s page
+        wdf = worker_file[name] #Extract <name>'s preferences page
         mdf = manager_file[name]
         if wdf.shape != mdf.shape or not wdf.columns.equals(mdf.columns) or not wdf.index.equals(mdf.index):
-            print(f"There's an error on the formatting of {name}'s schedule in {worker_file_name}, either with the row names or the column names -- go check it out")
+            print(f"There's an error on the formatting of {name}'s schedule in {worker_file_name} or {manager_file_name}, either with the row names or the column names -- go check it out")
             return False
         wdf.fillna(0) # Fill NaNs with 0s
         mdf.fillna(0) 
@@ -58,15 +62,18 @@ def cleanWorkerFile(worker_file_name, cleaned_file_name, manager_file_name):
     
     # Write to Excel
     with pd.ExcelWriter(cleaned_file_name, engine='xlsxwriter') as writer:
-        for name, df in worker_file.items():
+        for name, df in worker_file.items(): # Editing the isolated DataFrame objects earlier also edits the DataFrame objects inside worker_file
             df.to_excel(writer, sheet_name=name)
     return True
     
 
 def main():
+    # CONFIGUREABLE
     dirty_worker_preferences_file_name = "worker_preferences.xlsx"
     clean_worker_preferences_file_name = "cleaned_worker_preferences.xlsx"
     manager_preferences_file_name = "manager_preferences.xlsx"
+    num_days_off_per_week = 3 #CONFIGUREABLE
+
     if not cleanWorkerFile(dirty_worker_preferences_file_name, 
                     clean_worker_preferences_file_name, 
                     manager_preferences_file_name):
@@ -83,48 +90,21 @@ def main():
             worker_xlsx[worker_names[index]].to_numpy(),
             manager_xlsx[worker_names[index]].to_numpy()
         ))
-    """
-    day_preferences = [  #Rows are workers, columns are jobs
-        # KL, HTO, HTC, Field
-        [0.6, 0.2, 0.1, 0.1], #Amber
-        [0.0, 0.3, 0.3, 0.4], #Nearn
-        [0.0, 0.1, 0.2, 0.7], #Rob
-        [0.8, 0.1, 0.1, 0.0], #Elinor
-        [0.1, 0.5, 0.3, 0.1], #Mariam
-    ]
-    sunday_preferences = [
-        # KL, HTO, HTC, Field
-        [0.0, 0.0, 0.0, 0.0], #Amber
-        [0.0, 0.0, 0.0, 0.0], #Nearn
-        [0.0, 0.0, 0.0, 0.0], #Rob
-        [0.0, 0.0, 0.0, 0.0], #Elinor
-        [0.0, 0.0, 0.0, 0.0], #Mariam
-    ]
 
-    week_preferences = [day_preferences, #EVERYTHING SHOULD BE BASED OFF OF week_preferences FROM HERE ON OUT. NO MENTIONING day_preferences OR sunday_preferences
-                        day_preferences,
-                        day_preferences,
-                        day_preferences,
-                        day_preferences,
-                        day_preferences,
-                        sunday_preferences]
-    
-    for day in week_preferences: #Check for errors
-        print_preference_sums(day)"""
     
     num_workers = len(week_preferences)
     num_jobs = len(week_preferences[0])
     num_days = len(week_preferences[0][0])
-    num_days_off_per_week = 3 #CONFIGUREABLE
 
     # Create the mip solver with the SCIP backend.
     solver = pywraplp.Solver.CreateSolver("SCIP") #Not sure what SCIP is
 
     if not solver:
+        print("Solver not found. Exiting the program without solving.")
         return
     
-    # assignment_matrix[d, w, j] is an array of 0-1 variables, which will be 1
-    # if worker w is assigned to task j on day d.
+    # assignment_matrix[w, j, d] is an array of 0-1 variables, which will be 1
+    # if worker w is assigned to task j on day d when the solution is made.
     assignment_matrix = {}
     for w in range(num_workers): 
         for j in range(num_jobs):
@@ -139,8 +119,6 @@ def main():
     # Constraint: Each task is assigned to at most one worker per day.
     for d in range(num_days):
         for j in range(num_jobs):
-            sol = [assignment_matrix[w, j, d] for w in range(num_workers)]
-            print(sol)
             solver.Add(solver.Sum([assignment_matrix[w, j, d] for w in range(num_workers)]) <= 1)
     
     # Constraint: Each worker only works for num_days - num_days_off_per_week
@@ -163,7 +141,7 @@ def main():
         if status == pywraplp.Solver.OPTIMAL:
             print("Optimal solution found.")
         if status == pywraplp.Solver.FEASIBLE:
-            print("Good solution found.")
+            print("Feasible solution found.")
         print(f"Total Happiness = {solver.Objective().Value()}\n")
         data = {} #For the output DataFrame
         for d in range(num_days):
