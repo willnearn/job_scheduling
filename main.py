@@ -9,14 +9,6 @@ import numpy as np
 import warnings
 from ortools.linear_solver import pywraplp
 
-def print_preference_sums(preferences):
-    """Prints sum of rows if a row sums to anything but 1"""
-    rownum = 0
-    for row in preferences:
-        if abs(sum(row) - 1) > 0.005: #floating point error
-            print("Row "+str(rownum)+"'s sum is "+str(sum(row))+": "+str(row))
-        rownum += 1
-
 
 def cleanWorkerFile(worker_file_name, cleaned_file_name, manager_file_name):
     # Take in the names of the messy worker file, clean it up (partly based on the manager file), and save the cleaned version at `cleaned_file_name`.
