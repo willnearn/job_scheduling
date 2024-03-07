@@ -4,6 +4,7 @@ Will Nearn
 Assignment Problem Example
 based off of example in https://developers.google.com/optimization/assignment/assignment_example, but modified for my use
 """
+import os
 import pandas as pd
 import numpy as np
 import warnings
@@ -81,12 +82,13 @@ def read_in_off_day_requests(xlsx_dict, sheet_name, names):
 
 def main():
     # CONFIGUREABLE
-    dirty_worker_preferences_file_name = "worker_preferences.xlsx"
-    clean_worker_preferences_file_name = "cleaned_worker_preferences.xlsx"
-    manager_preferences_file_name = "manager_preferences.xlsx"
-    not_off_together_page = "not_off_together"
-    off_together_page = "off_together"
-    num_days_off_per_week = 2
+    dirty_worker_preferences_file_name = "worker_preferences.xlsx" # Name of the file that contains each worker's preferences for each day/shift to work. Each column is a day, each row is a shift, and the values should be above `unable_score` for tasks that they're trained to do, and up to high_score for tasks that they really want to do. Non-integer values will be floored to the nearest integer, and values that are too low are brought back up to `low_reset_score`
+    clean_worker_preferences_file_name = "cleaned_worker_preferences.xlsx" #Transition file that the program generates when it cleans the worker input data. It is deleted at the end of the program.
+    manager_preferences_file_name = "manager_preferences.xlsx" # Excel workbook that has the manager preferences for each worker/day/shift combination, plus any extra sheets for other requirements
+    not_off_together_page = "not_off_together" # This is the name of the sheet on the manager preferences workbook that contains the pairs of people that DO NOT WANT to be off together 
+    off_together_page = "off_together" # This is the name of the sheet on the manager preferences workbook that contains the pairs of people that WANT to be off together 
+    days_off_page = "days_off" # Page that contains who requested an unusual number of days off
+    default_num_days_off_per_week = 2 # Number of days off that each worker has for M-Sa by default
     unable_score = 0 # If a worker gives this score, that indicates that they can't do the given task -- days off should be given in the manager preferences Excel worksheet
     high_score = 10 # Anything higher than this will be reset to this
     low_reset_score = np.int64(3) #Any score at or below unable_score for a task that a worker is able to do will be reset to this
@@ -147,8 +149,16 @@ def main():
             solver.Add(solver.Sum([assignment_matrix[w, j, d] for w in range(num_workers)]) <= 1)
     
     # Constraint: Each worker only works for num_days - num_days_off_per_week
+    workers_to_days_off = {}
+    for name in worker_names:
+        workers_to_days_off[name] = default_num_days_off_per_week
+    days_off_df = manager_xlsx[days_off_page] # Read in who requested a different number of days off than the default
+    for name, row in days_off_df.iterrows():
+        num_days_off = int(row.values[0])
+        if name in worker_names and isinstance(num_days_off, int) and num_days_off <= num_days:
+            workers_to_days_off[name] = num_days_off
     for w in range(num_workers):
-        solver.Add(solver.Sum([assignment_matrix[w, j, d] for d in range(num_days) for j in range(num_jobs)]) <= (num_days - num_days_off_per_week))
+        solver.Add(solver.Sum([assignment_matrix[w, j, d] for d in range(num_days) for j in range(num_jobs)]) <= (num_days - workers_to_days_off[worker_names[w]]))
 
     # Constraint: People who don't want to be off together won't be off together
     for index, row in not_off_together_df.iterrows():
@@ -207,6 +217,7 @@ def main():
         df.to_csv("output.csv", index=True)
     else:
         print("No solution found.")
+    os.remove(clean_worker_preferences_file_name) #Cleanup!
 
 
 
