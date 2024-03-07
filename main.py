@@ -74,7 +74,6 @@ def read_in_off_day_requests(file_name, names):
     return df
 
 
-
 def main(dirty_worker_preferences_file_name, 
          clean_worker_preferences_file_name, 
          manager_preferences_file_name, 
@@ -116,7 +115,7 @@ def main(dirty_worker_preferences_file_name,
     
     # assignment_matrix[w, j, d] is an array of 0-1 variables, which will be 1
     # if worker w is assigned to task j on day d when the solution is made.
-    assignment_matrix = {}
+    assignment_matrix = np.empty((num_workers, num_jobs, num_days), dtype=object)
     for w in range(num_workers): 
         for j in range(num_jobs):
             for d in range(num_days):
@@ -135,6 +134,26 @@ def main(dirty_worker_preferences_file_name,
     # Constraint: Each worker only works for num_days - num_days_off_per_week
     for w in range(num_workers):
         solver.Add(solver.Sum([assignment_matrix[w, j, d] for d in range(num_days) for j in range(num_jobs)]) <= (num_days - num_days_off_per_week))
+
+    # Constraint: People who don't want to be off together won't be off together
+    for index, row in not_off_together_df.iterrows():
+        first_person = not_off_together_df.iloc[index, 0] #Get people's names
+        second_person = not_off_together_df.iloc[index, 1]
+        w1 = worker_names.index(first_person) # Convert people's names into indices
+        w2 = worker_names.index(second_person)
+        for d in range(num_days):
+            solver.Add(  solver.Sum( assignment_matrix[w1, :, d]+assignment_matrix[w2, :, d] )  >= 1) # Constrain at least one of them to be on during a given day, therefore they aren't off together
+
+    # Constraint: People who do want to be off together will always be off together
+    for index, row in off_together_df.iterrows():
+        first_person = off_together_df.iloc[index, 0] #Get people's names
+        second_person = off_together_df.iloc[index, 1]
+        w1 = worker_names.index(first_person) # Convert people's names into indices
+        w2 = worker_names.index(second_person)
+        for d in range(num_days):
+            solver.Add(  solver.Sum( assignment_matrix[w1, :, d]-assignment_matrix[w2, :, d] )  >= 0) # Constrain not exactly one of them to be on during a given day, therefore they are always off together
+            solver.Add(  solver.Sum( -assignment_matrix[w1, :, d]+assignment_matrix[w2, :, d] )  >= 0) # Constrain not exactly one of them to be on during a given day, therefore they are always off together
+
 
     # Objective function -- a combination of the (double)preference matrix and the (<ortools.linear_solver.pywraplp.Variable>)assignment matrix
     objective_terms = []
