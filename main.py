@@ -70,15 +70,18 @@ def cleanWorkerFile(worker_file_name,
 
 
 def read_in_off_day_requests(xlsx_dict, sheet_name, names):
-    df = xlsx_dict[sheet_name]
-    for index, row in df.iterrows():
-        for elem in row:
-            if elem not in names:
-                print(f"Hold your horses there, buddy. {sheet_name} had an incorrect worker name in it. \nWrong Name: {elem}\nAvailable Names: {names}. Skipping this guy")
-                df.drop(index, inplace=True)
-                break
-    df.reset_index(drop=True, inplace=True)
-    return df
+    try:
+        df = xlsx_dict[sheet_name]
+        for index, row in df.iterrows():
+            for elem in row:
+                if elem not in names:
+                    print(f"\nHold your horses there, buddy. {sheet_name} had an incorrect worker name in it. \nWrong Name: {elem}\nAvailable Names: {names}. Skipping this guy")
+                    df.drop(index, inplace=True)
+                    break
+        df.reset_index(drop=True, inplace=True)
+        return df
+    except KeyError as e:
+        return pd.DataFrame() # If it doesn't exist, just return an empty DataFrame
 
 def main():
     # CONFIGUREABLE
@@ -115,9 +118,6 @@ def main():
             manager_xlsx[worker_names[index]].to_numpy()
         ))    
 
-    not_off_together_df = read_in_off_day_requests(manager_xlsx, not_off_together_page, worker_names)
-    off_together_df = read_in_off_day_requests(manager_xlsx, off_together_page, worker_names)
-
     # Analysis
     num_workers = len(week_preferences)
     num_jobs = len(week_preferences[0])
@@ -152,15 +152,27 @@ def main():
     workers_to_days_off = {}
     for name in worker_names:
         workers_to_days_off[name] = default_num_days_off_per_week
-    days_off_df = manager_xlsx[days_off_page] # Read in who requested a different number of days off than the default
-    for name, row in days_off_df.iterrows():
-        num_days_off = int(row.values[0])
-        if name in worker_names and isinstance(num_days_off, int) and num_days_off <= num_days:
+    try:
+        days_off_df = manager_xlsx[days_off_page] # Read in who requested a different number of days off than the default
+        for name, row in days_off_df.iterrows():
+            if name not in worker_names:
+                print(f"\nHey, just a heads up-- you had {name} in here for {row.values[0]} days off, but they aren't in the list of worker names, so this program is ignoring them.\nNames: {worker_names}")
+                continue
+            try:
+                num_days_off = int(row.values[0])
+            except ValueError as e:
+                print(f"\nHey, watch it there -- you put a non-number value ({row.values[0]}) as the number of days that {name} has off. We're gonna go ahead and skip it for that.")
+            if num_days_off > num_days:
+                print(f"\nYou listed {name} as having {num_days_off} days off this week, but there are only {num_days} in the week. I want their lifestyle! I'm gonna go ahead and set their days off this week back down to {num_days}")
+                num_days_off = num_days
             workers_to_days_off[name] = num_days_off
+    except KeyError as e:
+        pass
     for w in range(num_workers):
         solver.Add(solver.Sum([assignment_matrix[w, j, d] for d in range(num_days) for j in range(num_jobs)]) <= (num_days - workers_to_days_off[worker_names[w]]))
 
     # Constraint: People who don't want to be off together won't be off together
+    not_off_together_df = read_in_off_day_requests(manager_xlsx, not_off_together_page, worker_names)
     for index, row in not_off_together_df.iterrows():
         first_person = not_off_together_df.iloc[index, 0] #Get people's names
         second_person = not_off_together_df.iloc[index, 1]
@@ -170,6 +182,7 @@ def main():
             solver.Add(  solver.Sum( assignment_matrix[w1, :, d]+assignment_matrix[w2, :, d] )  >= 1) # Constrain at least one of them to be on during a given day, therefore they aren't off together
 
     # Constraint: People who do want to be off together will always be off together
+    off_together_df = read_in_off_day_requests(manager_xlsx, off_together_page, worker_names)
     for index, row in off_together_df.iterrows():
         first_person = off_together_df.iloc[index, 0] #Get people's names
         second_person = off_together_df.iloc[index, 1]
@@ -216,7 +229,11 @@ def main():
         df = pd.DataFrame(data, index=job_names)
         df.to_csv("output.csv", index=True)
     else:
-        print("No solution found.")
+        print("\n\n\n\t\t**** ERROR: No solution found. ****")
+        print("> That means that the problem is over-defined-- it has too many constriants. If you remove some constraints, you'll probably get a solution")
+        print("  > This most cumbersome constraints are 'I wanna be off together with John Doe' or 'I don't wanna be off together with John Doe.' Try to get the workers just to set their own daily preferences on their preference sheet (e.g. both workers setting all their preferences on Tuesday to the lowest value in order to increase the likelihood that they'll have a day off together)")
+        print("  > The next most cumbersome constraints are the days off. Hopefully, you shouldn't need to rearrange these too much, but obviously if we're overstaffed and everyone wants to work 6/6 days, we just aren't going to have enough jobs to go around. If you're wildly overstaffed, and there still aren't enough jobs to go around for everyone to work 4 days a week, you can add more jobs (rows) on the preferences sheets")
+        print("  > Once you solve these two things, you should be good :)")
     os.remove(clean_worker_preferences_file_name) #Cleanup!
 
 
