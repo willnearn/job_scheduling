@@ -41,10 +41,11 @@ def cleanWorkerFile(worker_file_name,
         if wdf.shape != mdf.shape or not wdf.columns.equals(mdf.columns) or not wdf.index.equals(mdf.index):
             print(f"There's an error on the formatting of {name}'s schedule in {worker_file_name} or {manager_file_name}, either with the row names or the column names -- go check it out")
             return False
-        wdf.fillna(0) # Fill NaNs with 0s
-        mdf.fillna(0) 
-        wdf[wdf<0] = 0 # Replace negative values with 0 
-        mdf[mdf<0] = 0 
+        wdf.fillna(unable_score) # Fill NaNs with the unable score
+        mdf.fillna(unable_score) 
+        wdf = wdf.astype(int) # Floor worker scores to an integer number
+        wdf[wdf<unable_score] = unable_score # Replace values less than unable_score with unable_score
+        mdf[mdf<unable_score] = unable_score 
         mdf[mdf>high_score] = high_score # Replace values above the max with the max value
         wdf[wdf>high_score] = high_score
 
@@ -56,7 +57,10 @@ def cleanWorkerFile(worker_file_name,
             with warnings.catch_warnings(): #It gives a warning that `low_reset_score` isn't the right data type?
                 warnings.simplefilter("ignore", category=FutureWarning)
                 wdf[mismatched_indices.notna()] = low_reset_score 
-    
+        
+        worker_file[name] = wdf # Reassign corrected values to our excel spreadsheet
+        manager_file[name] = mdf
+
     # Write to Excel
     with pd.ExcelWriter(cleaned_file_name, engine='xlsxwriter') as writer:
         for name, df in worker_file.items(): # Editing the isolated DataFrame objects earlier also edits the DataFrame objects inside worker_file
@@ -88,8 +92,8 @@ def main():
     off_together_file = "off_together.csv"
     num_days_off_per_week = 2
     unable_score = 0 # If a worker gives this score, that indicates that they can't do the given task -- days off should be given in the manager preferences Excel worksheet
-    high_score = 1 # Anything higher than this will be reset to this
-    low_reset_score = np.float64(0.3) #Any score at or below unable_score for a task that a worker is able to do will be reset to this
+    high_score = 10 # Anything higher than this will be reset to this
+    low_reset_score = np.int64(3) #Any score at or below unable_score for a task that a worker is able to do will be reset to this
 
     # Clean up data
     if not cleanWorkerFile(dirty_worker_preferences_file_name, 
