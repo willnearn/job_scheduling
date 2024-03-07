@@ -68,28 +68,24 @@ def cleanWorkerFile(worker_file_name,
     return True
 
 
-def read_in_off_day_requests(file_name, names):
-    # A convenience function to read in off together / not off together requests
-    df = pd.DataFrame()
-    if file_name is not None:
-        df = pd.read_csv(file_name)
+def read_in_off_day_requests(xlsx_dict, sheet_name, names):
+    df = xlsx_dict[sheet_name]
     for index, row in df.iterrows():
         for elem in row:
             if elem not in names:
-                print(f"Hold your horses there, buddy. {file_name} had an incorrect worker name in it. \nWrong Name: {elem}\nAvailable Names: {names}. Skipping this guy")
+                print(f"Hold your horses there, buddy. {sheet_name} had an incorrect worker name in it. \nWrong Name: {elem}\nAvailable Names: {names}. Skipping this guy")
                 df.drop(index, inplace=True)
                 break
     df.reset_index(drop=True, inplace=True)
     return df
-
 
 def main():
     # CONFIGUREABLE
     dirty_worker_preferences_file_name = "worker_preferences.xlsx"
     clean_worker_preferences_file_name = "cleaned_worker_preferences.xlsx"
     manager_preferences_file_name = "manager_preferences.xlsx"
-    not_off_together_file = "not_off_together.csv"
-    off_together_file = "off_together.csv"
+    not_off_together_page = "not_off_together"
+    off_together_page = "off_together"
     num_days_off_per_week = 2
     unable_score = 0 # If a worker gives this score, that indicates that they can't do the given task -- days off should be given in the manager preferences Excel worksheet
     high_score = 10 # Anything higher than this will be reset to this
@@ -116,8 +112,9 @@ def main():
             worker_xlsx[worker_names[index]].to_numpy(),
             manager_xlsx[worker_names[index]].to_numpy()
         ))    
-    off_together_df = read_in_off_day_requests(off_together_file, worker_names)
-    not_off_together_df = read_in_off_day_requests(not_off_together_file, worker_names)
+
+    not_off_together_df = read_in_off_day_requests(manager_xlsx, not_off_together_page, worker_names)
+    off_together_df = read_in_off_day_requests(manager_xlsx, off_together_page, worker_names)
 
     # Analysis
     num_workers = len(week_preferences)
