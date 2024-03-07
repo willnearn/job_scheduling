@@ -10,7 +10,12 @@ import warnings
 from ortools.linear_solver import pywraplp
 
 
-def cleanWorkerFile(worker_file_name, cleaned_file_name, manager_file_name):
+def cleanWorkerFile(worker_file_name,
+                    cleaned_file_name, 
+                    manager_file_name, 
+                    unable_score,
+                    high_score,
+                    low_reset_score):
     # Take in the names of the messy worker file, clean it up (partly based on the manager file), and save the cleaned version at `cleaned_file_name`.
     # PARAMS:
     # worker_file_name:
@@ -19,13 +24,13 @@ def cleanWorkerFile(worker_file_name, cleaned_file_name, manager_file_name):
     #  - Should contain (0,1] for jobs that the worker can do, where 1 means that they really want to do that job on that day
     # cleaned_file_name will be the location of the cleaned version of the file stored at `worker_file_name`
     # manager_file_name should be identical to the worker preferences file except the data points are made by the managers
+    # unable_score is the score that indicates that a worker is unfit for a task (due to an exemption, lack of training, etc.)
+    # high_score is the highest allowed preference score
+    # low_reset_score is the preference score that workers get if they set their preference for a task too low. "Too low" is either of the following:
+    #  - A number below unable_score
+    #  - The value of unable_score if management says that the worker can do the given task
     # RETURNS:
     # void, but it writes to an .xlsx file
-
-    # CONFIGUREABLE
-    unable_score = 0 # If a worker gives this score, that indicates that they can't do the given task -- days off should be given in the manager preferences Excel worksheet
-    high_score = 1 # Anything higher than this will be reset to this
-    low_reset_score = np.float64(0.3) #Any score at or below unable_score for a task that a worker is able to do will be reset to this
     
     worker_file = pd.read_excel(worker_file_name, sheet_name=None, index_col=0)
     manager_file = pd.read_excel(manager_file_name, sheet_name=None, index_col=0)
@@ -74,16 +79,25 @@ def read_in_off_day_requests(file_name, names):
     return df
 
 
-def main(dirty_worker_preferences_file_name, 
-         clean_worker_preferences_file_name, 
-         manager_preferences_file_name, 
-         num_days_off_per_week, 
-         not_off_together_file=None,
-         off_together_file=None):
+def main():
+    # CONFIGUREABLE
+    dirty_worker_preferences_file_name = "worker_preferences.xlsx"
+    clean_worker_preferences_file_name = "cleaned_worker_preferences.xlsx"
+    manager_preferences_file_name = "manager_preferences.xlsx"
+    not_off_together_file = "not_off_together.csv"
+    off_together_file = "off_together.csv"
+    num_days_off_per_week = 2
+    unable_score = 0 # If a worker gives this score, that indicates that they can't do the given task -- days off should be given in the manager preferences Excel worksheet
+    high_score = 1 # Anything higher than this will be reset to this
+    low_reset_score = np.float64(0.3) #Any score at or below unable_score for a task that a worker is able to do will be reset to this
+
     # Clean up data
     if not cleanWorkerFile(dirty_worker_preferences_file_name, 
                     clean_worker_preferences_file_name, 
-                    manager_preferences_file_name):
+                    manager_preferences_file_name, 
+                    unable_score,
+                    high_score,
+                    low_reset_score):
         print("\nThere was an error in cleaning up the file. Please investigate. Exiting out of the program. Please re-run this program after fixing the data")
         return
     # Read in data
@@ -196,15 +210,4 @@ def main(dirty_worker_preferences_file_name,
 
 
 if __name__ == "__main__":
-    dirty_worker_preferences_file_name = "worker_preferences.xlsx"
-    clean_worker_preferences_file_name = "cleaned_worker_preferences.xlsx"
-    manager_preferences_file_name = "manager_preferences.xlsx"
-    not_off_together_file = "not_off_together.csv"
-    off_together_file = "off_together.csv"
-    num_days_off_per_week = 2
-    main(dirty_worker_preferences_file_name, 
-         clean_worker_preferences_file_name, 
-         manager_preferences_file_name, 
-         num_days_off_per_week,
-         not_off_together_file=not_off_together_file,
-         off_together_file=off_together_file)
+    main()
