@@ -31,15 +31,19 @@
   - No more than one job per worker per day
   - Workers have `num_days_off_per_week` days off per week
 - Output decisions onto a schedule in a .csv
+- Feature: Allow workers to specify days that they want off -- This will be solved by the preference table:
+  - For approved requests, management will put in 0s for that worker for that day
+  - For unapproved requests, workers can just put in low values for those days
+- Feature: Allow workers to specify that they want to be off together (or NOT off together)
+- Test with more complete data 
 
   
 ### TODO
-- Test with more complete data
-- Feature: Allow workers to specify days that they want off
+- Test with real-life data
 - Feature: Allow workers to specify that they want to have a different number of days off
-- Feature: Allow workers to specify that they want to be off together (or NOT off together) on certain days (TBD-- may be too complex)
-- Take in data more smoothly
+- Take in data more smoothly?
 - Feature: allow workers to trade off which days they're working (Brett said that they'll manage who can trade)
+- Write instructions
 
 
 ## Brett Meeting Notes
