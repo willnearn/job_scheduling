@@ -73,12 +73,15 @@ def read_in_off_day_requests(xlsx_dict, sheet_name, names):
     try:
         df = xlsx_dict[sheet_name]
         for index, row in df.iterrows():
-            for elem in row:
-                if elem not in names:
-                    print(f"\nHold your horses there, buddy. {sheet_name} had an incorrect worker name in it. \nWrong Name: {elem}\nAvailable Names: {names}. Skipping this guy")
-                    df.drop(index, inplace=True)
-                    break
-        df.reset_index(drop=True, inplace=True)
+            if index not in names:
+                print(f"\nHold your horses there, buddy. The sheet {sheet_name} had an incorrect worker name in it. \nWrong Name: {index}\nAvailable Names: {names}. Skipping this guy")
+                df.drop(index, inplace=True)
+                continue
+            if row.values[0] not in names:
+                print(f"\nHold your horses there, buddy. The sheet {sheet_name} had an incorrect worker name in it. \nWrong Name: {row.values[0]}\nAvailable Names: {names}. Skipping this guy")
+                df.drop(index, inplace=True)
+                continue
+        df.reset_index(inplace=True)
         return df
     except KeyError as e:
         return pd.DataFrame() # If it doesn't exist, just return an empty DataFrame
@@ -156,14 +159,14 @@ def main():
         days_off_df = manager_xlsx[days_off_page] # Read in who requested a different number of days off than the default
         for name, row in days_off_df.iterrows():
             if name not in worker_names:
-                print(f"\nHey, just a heads up-- you had {name} in here for {row.values[0]} days off, but they aren't in the list of worker names, so this program is ignoring them.\nNames: {worker_names}")
+                print(f"\nHey, just a heads up-- you had {name} in here for {row.values[0]} days off on the sheet {days_off_page}, but they aren't in the list of worker names, so this program is ignoring them.\nNames: {worker_names}")
                 continue
             try:
                 num_days_off = int(row.values[0])
             except ValueError as e:
-                print(f"\nHey, watch it there -- you put a non-number value ({row.values[0]}) as the number of days that {name} has off. We're gonna go ahead and skip it for that.")
+                print(f"\nHey, watch it there -- you put a non-number value ({row.values[0]}) as the number of days that {name} has off on the sheet {days_off_page}. We're gonna go ahead and skip it for that.")
             if num_days_off > num_days:
-                print(f"\nYou listed {name} as having {num_days_off} days off this week, but there are only {num_days} in the week. I want their lifestyle! I'm gonna go ahead and set their days off this week back down to {num_days}")
+                print(f"\nYou listed {name} as having {num_days_off} days off this week on the sheet {days_off_page}, but there are only {num_days} in the week. I want their lifestyle! I'm gonna go ahead and set their days off this week back down to {num_days}")
                 num_days_off = num_days
             workers_to_days_off[name] = num_days_off
     except KeyError as e:
