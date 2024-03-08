@@ -88,3 +88,4 @@ I went ahead and set some default values for the manager preferences spreadsheet
 - If a worker puts that they can't do a task (any non-numeric value or a value less than 1), but the management preferences spreadsheet says that they have been trained to do the task, you'll get a little warning when you're running the program, and their preference value for that job at that date will be adjusted upward to a 3
 ### Miscellaneous
 - This is a repo on GitHub under the user `willnearn` and the repo name `job_scheduling`. This file is online at https://github.com/willnearn/job_scheduling/blob/main/README.md
+- [My previous set of notes](./notes/organization_notes.md)
