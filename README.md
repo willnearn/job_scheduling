@@ -1,7 +1,7 @@
 # Job Scheduling
 This repo will help automate the schedule-making process at Heavenly Hawaiian Coffee Farm
 # Overview:
-- Workers rate each of the jobs that they can work 1-10 for each day of the week
+- Workers rate each of the jobs that they can work 1 (worst) to 10 (best) for each day of the week
 - Managers rate each of the workers on which jobs they want the workers to fill for each day of the week
 - Workers can specify a different number of off days that they want
 - Workers can also specify that they want to be off with someone / don't want to be off with someone during the week (although this is discouraged; it can overdefine the problem, which means that there's no solution)
@@ -12,9 +12,28 @@ This repo will help automate the schedule-making process at Heavenly Hawaiian Co
 **TODO-- Write this down when getting Brett setup**
 
 # Quickstart
-TODO
 ### Default Values for Manager Preferences
-TODO
+I went ahead and set some default values for the manager preferences spreadsheet that I'm gonna hand off to Brett. Here's a list of what worked fairly well as a first cut -- edit it as you see fit. All values are for all people on all days unless noted otherwise
+- Tier 1: Imperative
+  - Hilltop Opener -- 10
+  - Hilltop Closer -- 10
+  - Konalani -- 10
+  - Paniolos -- 10
+  - Tour Guide -- 10
+  - Brew Class -- 10
+- Tier 2: Important
+  - Landscaping -- 4
+  - Hilltop Floater -- 5
+- Cooper I still love you
+  - Hilltop Floater #2 -- 1
+  - Field #1, #2, and #3 -- 1 on M/R, 4 on Tuesday, 2.5 on Wednesday, and 0 on F/Sa
+- Irregularities and Explanations
+  - Field isn't regular because:
+    - Brett specified that they're off on F/Sa
+    - Brett specified that Hilltop is busy on Mondays, so it gets a low value
+    - Brett specified that it's better to have a field *crew* than a field *person*, so I arbitrarily chose Tuesday to be the field crew day
+  - Hilltop Floater 1 gets bumped up from a preference of 5 to 10 on M/Sa because Brett said it's busier then
+  - Hilltop Floater 2 gets bumped up from a preference of 1 to 3 on M/Sa because Brett said it's busier then
 ### How to Get People Off Together 
 - Open manager_preferences.xlsx
 - Create a sheet named "off_together" if it doesn't already exist (this name is required)
