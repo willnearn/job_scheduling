@@ -195,9 +195,14 @@ def main():
         w1 = worker_names.index(first_person) # Convert people's names into indices
         w2 = worker_names.index(second_person)
         for d in range(num_days):
-            solver.Add(  solver.Sum( assignment_matrix[w1, :, d]-assignment_matrix[w2, :, d] )  >= 0) # Constrain not exactly one of them to be on during a given day, therefore they are always off together
-            solver.Add(  solver.Sum( -assignment_matrix[w1, :, d]+assignment_matrix[w2, :, d] )  >= 0) # Constrain not exactly one of them to be on during a given day, therefore they are always off together
+            solver.Add(  solver.Sum( assignment_matrix[w1, :, d]-assignment_matrix[w2, :, d] ) == 0)
 
+    # Constraint: Workers that have a preference of 0 for a job cannot be placed in that job
+    for w in range(num_workers):
+        for j in range(num_jobs):
+            for d in range(num_days):
+                if week_preferences[w][j][d] == 0:
+                    solver.Add(assignment_matrix[w, j, d] == 0)
 
     # Objective function -- a combination of the (double)preference matrix and the (<ortools.linear_solver.pywraplp.Variable>)assignment matrix
     objective_terms = []
