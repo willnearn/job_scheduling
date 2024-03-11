@@ -11,7 +11,7 @@ import warnings
 from ortools.linear_solver import pywraplp
 
 
-def cleanWorkerFile(worker_file_name,
+def cleanPreferenceFiles(worker_file_name,
                     cleaned_file_name, 
                     manager_file_name, 
                     unable_score,
@@ -66,6 +66,9 @@ def cleanWorkerFile(worker_file_name,
     with pd.ExcelWriter(cleaned_file_name, engine='xlsxwriter') as writer:
         for name, df in worker_file.items(): # Editing the isolated DataFrame objects earlier also edits the DataFrame objects inside worker_file
             df.to_excel(writer, sheet_name=name)
+    with pd.ExcelWriter(manager_file_name, engine='xlsxwriter') as writer:
+        for name, df in manager_file.items(): # Editing the isolated DataFrame objects earlier also edits the DataFrame objects inside worker_file
+            df.to_excel(writer, sheet_name=name)
     return True
 
 
@@ -100,7 +103,7 @@ def main():
     low_reset_score = np.int64(3) #Any score at or below unable_score for a task that a worker is able to do will be reset to this
 
     # Clean up data
-    if not cleanWorkerFile(dirty_worker_preferences_file_name, 
+    if not cleanPreferenceFiles(dirty_worker_preferences_file_name, 
                     clean_worker_preferences_file_name, 
                     manager_preferences_file_name, 
                     unable_score,
