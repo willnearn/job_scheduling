@@ -34,12 +34,13 @@
 - Feature: Allow workers to specify days that they want off -- This will be solved by the preference table:
   - For approved requests, management will put in 0s for that worker for that day
   - For unapproved requests, workers can just put in low values for those days
-- Tested with more complete data 
+- Tested with more complete data
+- Write instructions
 
   
 ### TODO
 - Test with real-life data
-- Write instructions
+- Look into/address potential bug adding people to the schedule with a score of 0
 
 
 ## Brett Meeting Notes
