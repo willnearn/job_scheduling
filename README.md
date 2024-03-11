@@ -1,57 +1,91 @@
 # Job Scheduling
-## Goal
-- Automate scheduling for a small-to-medium business to minimize the time scheduling
-  
-## Problem Statement
-- Score schedule "goodness" as a function of manager preferences and worker preferences
-- Don't assign workers to jobs for which they're unfit
-- Each worker has a default of 2 days off (changeable)
-- Each worker can only do 1 job per day
-  
-### Getting a little more mathematically formalized:
-- `w` workers need to be scheduled
-- `j` jobs need to be filled on any given day
-- `f` free days are allotted per employee per week
-- 3D "goodness" matrix of dimensions `j`x`d`x`w` represents the value of the "goodness" function if that worker is at that job on that day
-- Constraint: for each `j`x`d`, only choose 1 `w`
-- Constraint: "goodness" must be 0 or negative for workers unfit for jobs
-- Constraint: "goodness" must be positive for workers fit for a job
-- Constraint: 2 days off per worker per M-Sa
-- Constraint: each worker can only do one job in a day
-- Maximize goodness for the week's schedule
-- Avoid using brute force methods (time complexity is something like a factorial on another factorial I think)
+This repo will help automate the schedule-making process at Heavenly Hawaiian Coffee Farm
+# Overview:
+- Workers rate each of the jobs that they can work 1 (worst) to 10 (best) for each day of the week
+- Managers rate each of the workers on which jobs they want the workers to fill for each day of the week
+- Workers can specify a different number of off days that they want
+- Workers can also specify that they want to be off with someone / don't want to be off with someone during the week (although this is discouraged; it can overdefine the problem, which means that there's no solution)
+- The user pops these preferences into the program, and the program pops out the best schedule possible as a file named "output.csv"
+  - Unless the problem is overdefined, this will be the optimal solution. If it "doesn't look right," tweak the inputs to get a result that looks better for ya
 
-## Current State
-### Complete
-- Input manager happiness and worker happiness separately + combine them into a "happiness table"
-- Given a `d`x`w`x`j` "happiness table" and the number of days that each worker has off per week, it'll generate the optimal schedule with the following constraints:
-  - No more than one worker per job per day (if you want multiple in a day, you can do something like Field1, Field2, Field3 are all separate jobs
-  - No more than one job per worker per day
-  - Workers have a default number of days off per week, but this can be adjusted by populating their name and the number of days off that they get in manager_preferences.xlsx's `days_off` page
-  - Workers can specify that they want to be off with someone / don't want to be off with someone
-    - This can over-define the problem very quickly. It's recommended that workers accomplish this on their preferences (by e.g. setting both folks's Tuesday preferences down to the lowest setting in order to get the day off together) instead of making this a hard constraint whenever possible
-- Output decisions onto a schedule in a .csv
-- Feature: Allow workers to specify days that they want off -- This will be solved by the preference table:
-  - For approved requests, management will put in 0s for that worker for that day
-  - For unapproved requests, workers can just put in low values for those days
-- Tested with more complete data 
+# Setup -- Required Software
+**TODO-- Write this down when getting Brett setup**
 
-  
-### TODO
-- Test with real-life data
-- Write instructions
+# Quickstart
+### Default Values for Manager Preferences
+I went ahead and set some default values for the manager preferences spreadsheet that I'm gonna hand off to Brett. Here's a list of what worked fairly well as a first cut -- edit it as you see fit. All values are for all people on all days unless noted otherwise
+- Tier 1: Imperative
+  - Hilltop Opener -- 10
+  - Hilltop Closer -- 10
+  - Konalani -- 10
+  - Paniolos -- 10
+  - Tour Guide -- 10
+  - Brew Class -- 10
+- Tier 2: Important
+  - Landscaping -- 4
+  - Hilltop Floater -- 5
+- Cooper I still love you
+  - Hilltop Floater #2 -- 1
+  - Field #1, #2, and #3 -- 1 on M/R, 4 on Tuesday, 2.5 on Wednesday, and 0 on F/Sa
+- Irregularities and Explanations
+  - Field isn't regular because:
+    - Brett specified that they're off on F/Sa
+    - Brett specified that Hilltop is busy on Mondays, so it gets a low value
+    - Brett specified that it's better to have a field *crew* than a field *person*, so I arbitrarily chose Tuesday to be the field crew day
+  - Hilltop Floater 1 gets bumped up from a preference of 5 to 10 on M/Sa because Brett said it's busier then
+  - Hilltop Floater 2 gets bumped up from a preference of 1 to 3 on M/Sa because Brett said it's busier then
+### How to Get People Off Together 
+- Open manager_preferences.xlsx
+- Create a sheet named "off_together" if it doesn't already exist (this name is required)
+- Write "Person1" in cell A1 and "Person2" in cell A2 (or whatever column headers make sense to you; it doesn't really matter as long as something's there)
+- Write the names of the people that are gonna be off together in cells A2+B2, A3+B3, etc. until you get to the end of the list of pairs of people that wanna be off together
+### How to Get People Not Off Together
+- Open manager_preferences.xlsx
+- Create a sheet named "not_off_together" if it doesn't already exist (this name is required)
+- Write "Person1" in cell A1 and "Person2" in cell A2
+- Write the names of the people that are gonna not be off together in cells A2+B2, A3+B3, etc. until you get to the end of the list of pairs of people that don't wanna be off together
+### How to adjust an individual's days off per week
+- Open manager_preferences.xlsx
+- Create a sheet named "days_off" if it doesn't already exist (this name is required)
+- Leave A1 empty, and name cell B1 "days off" or give it another name that floats your boat
+- Name cell A2 after who wants a different number of days off, and put the different number of days off in cell B2
+  - A2 must have the name of the person as it's listed on the name of their spreadsheet tab
+### Miscellaneous Pitfalls and Standards
+- The column (days) and row (jobs) names for all of the preference sheets on manager_preferences.xlsx *and* worker_preferences.xlsx **must be the same**
+- The names of the worker tabs on each preference file **must be the same** (e.g. you can't name Robert's tab on the worker spreadsheet "Robert" and his tab on the management spreadsheet "robert")
+- The manager preferences file must be named manager_preferences.xlsx, and it must live in the same folder as main.py
+- The worker preferences file must be named worker_preferences.xlsx, and it must live in the same folder as main.py
+### How to run the program
+- First, make sure that you set up your installation of python as prescribed in the [Setup](https://github.com/willnearn/job_scheduling/blob/main/README.md#setup----required-software) section above
+- Then, make sure that your manager_preferences.xlsx and worker_preferences.xlsx have values that fit your wants/needs
+- Next, let's run it:
+- On Windows:
+  - Open up a file explorer
+  - Navigate to the folder that holds `main.py`
+  - On the bar at the top that holds the file path, click just to the right of the current folder. The whole file path should now be visible, and it should be highlighted in blue
+  - Hit `backspace` to erase the file path that shows up there and type `cmd`
+  - Hit enter. You are now in the command prompt at the location that holds `main.py`. You can confirm this by typing `dir` and hitting enter. This will show you what files are in the current folder, how much storage they take up, and other fun facts
+  - Call python on main.py. Typically, this means typing `python main.py` in the command prompt and hitting `enter`, but sometimes you need to do `python3 main.py` and hit `enter`
+- On Macs:
+  - `cmd`+`space` to open up the search bar
+  - Type in "Terminal" and select it
+  - Now you are in a terminal. Navigate to the folder that holds `main.py`. Here are some helpers:
+    - `pwd` shows the whole file path that you're at right now
+    - `cd` lets you change the folder that you're in (you can do `cd ..` to go back up)
+    - `ls` lets you see what all items are in the current folder
+  - When you reach the folder that contains `main.py`, type `ls` and hit enter. If main.py shows up, you're there
+  - Now call python on main.py. Typically, this means typing `python main.py` in the command prompt and hitting `enter`, but sometimes you need to do `python3 main.py` and hit `enter`
 
-
-## Brett Meeting Notes
-- Catch case for people requesting off days way into the future ==> Make a Preferences spreadsheet for each week, and just update it as you get requests
-- Tracking training is helpful ==> Can do this in the manager_preferences.xlsx spreadsheet. Start off with 0s everywhere, and as they get training, fill it out with non-zero numbers
-- When switching shifts, don't switch into a training shift ==> Company culture + the Scheduling groupme will take care of this
-- Bunch people together in field ==> Done on the manager_preferences.xlsx file. The default that I gave it bunches people together on Tuesday, or potentially Wednesday
-- Friday and Saturday off in the field ==> Done on the manager_preferences.xlsx file. You just put 0s for everyone those days
-- Make worker end dates ==> This is handled in the week-to-week manager_preferences.xlsx file. If someone ends mid-week next week,
-  1. Make a new manager_preferences spreadsheet for that week
-  2. Put 0s for the days that they won't be in town
-  3. Adjust their days off for that week by adding their name to manager_preferences.xlsx's `days_off` page
-
-## Notes
-- Helpful: [Google OR-Tools](https://developers.google.com/optimization/introduction/python)
+# Getting More Technical
+### Going Under the Hood
+- All of the required names here can be adjusted if you open up `main.py` in a text editor and search for `def main(`. The hard-coded definitions are below it. Adjust 'em or inspect 'em as you need to. They each have a description of what they're supposed to do by their assignment, so hopefully they're easy to navigate through
+- The way that the program combines worker preference with management preference is simple multiplication, and it optimizes the product. So if Sally rates her preference of working in Konalani on Monday as a 7, and management rates Sally working in Konalani as a 9, the total "happiness" that happens if Sally works Konalani on Monday is 7*9=**63**. The algorithm optimizes the overall happiness for everyone over the entire week given the constraints (e.g. workers can't work multiple jobs in a day, workers need days off, workers are unavailable when they're out of town, etc.)
+- Worker preferences will be "floored," meaning that a 5.9 actually comes out as a 5. Manager preferences, however, are not floored. This allows management to force some jobs to be filled by setting the management preference for a certain job as an order of magnitude or two higher than a less important job (think: if you *need* to fill jobA, and it would be nice to fill jobB only *after* jobA is filled, and filling jobC is a cherry on top that only should happen after jobA and jobB are filled, you can set the management preference for jobA at 10, the management preference for jobB as 0.99, and the management preference for jobC as 0.09. That way, even if someone rates jobB as 10 and jobA as 1, the "happiness" on jobB (9.9 in this case) will never exceed the "happiness" on jobA (10 in this case)
+- Management can keep someone out of a given task/day by rating them as a 0 for that task/day. If you do this like crazy, though, you'll start to see some folks be assigned to things that they've been banned from, though
+### What Happens to the Rule-Breakers?
+- If a worker or manager puts that their preference for a task is more than the upper limit (currently 10), it gets adjusted back down to the upper limit
+- If a worker or manager puts that their preference is a non-numeric value or a negative number, it'll go down as a 0
+- If a worker puts that they can't do a task (any non-numeric value or a value less than 1), but the management preferences spreadsheet says that they have been trained to do the task, you'll get a little warning when you're running the program, and their preference value for that job at that date will be adjusted upward to a 3
+### Miscellaneous
+- This is a repo on GitHub under the user `willnearn` and the repo name `job_scheduling`. This file is online at https://github.com/willnearn/job_scheduling/blob/main/README.md
+- [My previous set of notes](./notes/organization_notes.md)
