@@ -29,12 +29,12 @@ This repo will help automate the schedule-making process at Heavenly Hawaiian Co
 - You should have this repo downloaded now (either someone emails it to you or you got it from Git)
 - Open up a command line/terminal in the location where main.py is
 - type `python main.py`, and hit enter in the command line, and see where it breaks.
-  - If it complains that there's no file found on a .csv file or an .xlsx file, we're doing well. Head to the next step.
+  - If it complains that there's no file found on a .csv file or an .xlsx file, we're doing well. Head to the next Quickstart!
   - If it complains that you don't have a package installed, we'll need to do some troubleshooting
 
 # Quickstart
 ### Default Values for Manager Preferences
-I went ahead and set some default values for the manager preferences spreadsheet that I'm gonna hand off to Brett. Here's a list of what worked fairly well as a first cut -- edit it as you see fit. All values are for all people on all days unless noted otherwise
+I went ahead and set some default values for the manager preferences (example [here](./spreadsheets/manager_preferences.xlsx)) spreadsheet that I'm gonna hand off to Brett. Here's a list of what worked fairly well as a first cut -- edit it as you see fit. All values are for all people on all days unless noted otherwise
 - Tier 1: Imperative
   - Hilltop Opener -- 10
   - Hilltop Closer -- 10
