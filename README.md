@@ -45,7 +45,7 @@ If you are going to use the .bat files to run commands, you need to be running *
 - output.csv is the schedule
 - output_messages.txt contains error messages from the schedule generation and a list version of how much "happiness" each person on the schedule got
 ## How to run the program
-- First, make sure that you set up your installation of python as prescribed in the [Setup](https://github.com/willnearn/job_scheduling/blob/main/README.md#setup----required-software) section above
+- First, make sure that you set up your installation of python as prescribed in the [Setup](./README.md#setup----each-person-should-only-have-to-do-this-section-once) section above
 - Then, make sure that your manager_preferences.xlsx and worker_preferences.xlsx have values that fit your wants/needs
 - If your setup and inputs are correct, all you need to do is double click on **run_me.bat**
   
@@ -94,7 +94,7 @@ I went ahead and set some default values for the manager preferences (example [h
 - The manager preferences file must be named manager_preferences.xlsx, and it must live in the same folder as main.py
 - The worker preferences file must be named worker_preferences.xlsx, and it must live in the same folder as main.py
 ### Updating the Repo
-- If changes are committed to the online version of the repo and you want to download them, double click on actions/update_me.bat. This will only work if you have Git installed on your computer (see setup instructions)
+- If changes are committed to the online version of the repo and you want to download them, double click on actions/update_me.bat. This will only work if you have Git installed on your computer (see [setup](./README.md#setup----each-person-should-only-have-to-do-this-section-once) instructions)
 
 
 # Getting More Technical
