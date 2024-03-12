@@ -6,7 +6,7 @@ This repo will help automate the schedule-making process at Heavenly Hawaiian Co
   
 
 
-# Setup -- Required Software
+# Setup -- Each Person Should Only Have to Do This Section Once
 If you are going to use the .bat files to run commands, you need to be running **Windows**
 ## Software
 - Get Git [here](https://git-scm.com/)
