@@ -12,14 +12,14 @@ If you are going to use the .bat files to run commands, you need to be running *
 - Get Git [here](https://git-scm.com/)
 - Python: Go to the Windows store and get Python. Python 3.11 is certain to work, but you can get a newer version if you want
 ## Configuration
-- Get your hands on the file "[click_on_this_to_download_this_repo_from_online.bat](./actions/click_on_this_to_download_this_repo_from_online.bat)", place it where you want to download this repo, and click on it to download
-  - This can be run on anyone's computer as long as they have Git, so if you want to set someone else up with this repo, just send them ./README.md (this file) and ./actions/click_on_this_to_download_this_repo_from_online.bat (the file that downloads the repo)
-- Run [actions/setup_python.bat](./actions/setup_python.bat) by clicking on it
-  - Only do this after installing Python
-## Test
-- click on ./run_me.bat
-  - If it complains that there's no file found on a .csv file or an .xlsx file, we're doing well. Head to the next Quickstart!
-  - If it complains that you don't have a package installed, we'll need to do some troubleshooting
+- Get your hands on the file "[click_on_this_to_download_this_repo_from_online.bat](./actions/click_on_this_to_download_this_repo_from_online.bat)", place it where you want to download this repo, and double click on it to download
+  - This file can be run on anyone's computer as long as they have Git, so if you want to set someone else up with this repo, just send them ./README.md (this file) and ./actions/click_on_this_to_download_this_repo_from_online.bat (the file that downloads the repo)
+- Run [actions/setup_python.bat](./actions/setup_python.bat) by double clicking on it
+  - Only do this after installing Python -- it adds extra tools to your Python that the scheduling tool needs
+## Test Your Setup
+- double click on ./run_me.bat and open up output_messages.txt to see the output
+  - If it runs without issue or complains that there's no file found on a .csv file or an .xlsx file, we're doing well. Head to the next Quickstart!
+  - If output_messages.txt isn't created after 60 seconds or it complains that you don't have a package installed, we'll need to do some troubleshooting
 
 # Quickstart
 ## Overview
@@ -47,7 +47,7 @@ If you are going to use the .bat files to run commands, you need to be running *
 ## How to run the program
 - First, make sure that you set up your installation of python as prescribed in the [Setup](https://github.com/willnearn/job_scheduling/blob/main/README.md#setup----required-software) section above
 - Then, make sure that your manager_preferences.xlsx and worker_preferences.xlsx have values that fit your wants/needs
-- If your setup and inputs are correct, all you need to do is click on **run_me.bat**
+- If your setup and inputs are correct, all you need to do is double click on **run_me.bat**
   
 ## Notes
 ### Default Values for Manager Preferences
