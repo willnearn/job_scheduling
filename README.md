@@ -12,7 +12,7 @@ This repo will help automate the schedule-making process at Heavenly Hawaiian Co
 **TODO-- Write this down when getting Brett setup**
 ## Getting This Repo Through Git (Optional but Recommended)
 - Windows
-  - Go to the Microsoft App Store and download Git Bash
+  - Get Git [here](https://git-scm.com/)
   - Open Git Bash somewhere that you want to download this repository
     - 2 ways to do this:
       1. Open Git Bash anywhere and use `cd <path>` to go to a path (use forward slashes instead of backslashes between folders), `pwd` to see where you are, and `ls` to see what's in the current folder
