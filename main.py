@@ -66,7 +66,7 @@ def cleanPreferenceFiles(worker_file_name,
     with pd.ExcelWriter(cleaned_file_name, engine='xlsxwriter') as writer:
         for name, df in worker_file.items(): # Editing the isolated DataFrame objects earlier also edits the DataFrame objects inside worker_file
             df.to_excel(writer, sheet_name=name)
-    with pd.ExcelWriter(manager_file_name, engine='xlsxwriter') as writer:
+    with pd.ExcelWriter("cleaned_"+manager_file_name, engine='xlsxwriter') as writer: #User may reference other cells in his manager preferences file, so we're not gonna save the cleaned values to the old location
         for name, df in manager_file.items(): # Editing the isolated DataFrame objects earlier also edits the DataFrame objects inside worker_file
             df.to_excel(writer, sheet_name=name)
     return True
@@ -111,6 +111,7 @@ def main():
                     low_reset_score):
         print("\nThere was an error in cleaning up the file. Please investigate. Exiting out of the program. Please re-run this program after fixing the data")
         return
+    manager_preferences_file_name = "cleaned_"+manager_preferences_file_name #User may reference other cells in his manager preferences file, so we're not gonna save the cleaned values to the old location
     # Read in data
     worker_xlsx = pd.read_excel(clean_worker_preferences_file_name, sheet_name=None, index_col=0)
     manager_xlsx = pd.read_excel(manager_preferences_file_name, sheet_name=None, index_col=0)
@@ -246,6 +247,7 @@ def main():
         print("  > The next most cumbersome constraints are the days off. Hopefully, you shouldn't need to rearrange these too much, but obviously if we're overstaffed and everyone wants to work 6/6 days, we just aren't going to have enough jobs to go around. If you're wildly overstaffed, and there still aren't enough jobs to go around for everyone to work 4 days a week, you can add more jobs (rows) on the preferences sheets")
         print("  > Once you solve these two things, you should be good :)")
     os.remove(clean_worker_preferences_file_name) #Cleanup!
+    os.remove(manager_preferences_file_name) # Cleanup!
 
 
 
