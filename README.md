@@ -106,7 +106,7 @@ I went ahead and set some default values for the manager preferences (example [h
 - If worker *w1* wants to have days off together with worker *w2*, they have to have the same number of days off per week. Otherwise, it is expected to say that the problem is unsolvable because the following constraints contradict each other:
   - Constraint that *w1* has more (or fewer) off days than *w2*
   - Constraint that *w1* and *w2* are always off at the same time
-  - This may be able to be fixed if OR-Tools's linear solver adds in an `Abs()` method ([docs](https://or-tools.github.io/docs/python/classortools_1_1linear__solver_1_1pywraplp_1_1Solver.html)), but I'm led to believe that I cannot just add in regular absolute value function here; I have to use one on the solver. TODO: Verify this suspicion
+  
 ### What Happens to the Rule-Breakers?
 - If a worker or manager puts that their preference for a task is more than the upper limit (currently 10), it gets adjusted back down to the upper limit
 - If a worker or manager puts that their preference is a non-numeric value or a negative number, it'll go down as a 0
