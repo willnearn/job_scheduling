@@ -13,6 +13,7 @@ This repo will help automate the schedule-making process at Heavenly Hawaiian Co
 ## Getting This Repo Through Git (Optional but Recommended)
 - Windows
   - Get Git [here](https://git-scm.com/)
+  - Make a GitHub account [here](https://github.com/signup)
   - Open Git Bash somewhere that you want to download this repository
     - 2 ways to do this:
       1. Open Git Bash anywhere and use `cd <path>` to go to a path (use forward slashes instead of backslashes between folders), `pwd` to see where you are, and `ls` to see what's in the current folder
@@ -29,12 +30,12 @@ This repo will help automate the schedule-making process at Heavenly Hawaiian Co
 - You should have this repo downloaded now (either someone emails it to you or you got it from Git)
 - Open up a command line/terminal in the location where main.py is
 - type `python main.py`, and hit enter in the command line, and see where it breaks.
-  - If it complains that there's no file found on a .csv file or an .xlsx file, we're doing well. Head to the next step.
+  - If it complains that there's no file found on a .csv file or an .xlsx file, we're doing well. Head to the next Quickstart!
   - If it complains that you don't have a package installed, we'll need to do some troubleshooting
 
 # Quickstart
 ### Default Values for Manager Preferences
-I went ahead and set some default values for the manager preferences spreadsheet that I'm gonna hand off to Brett. Here's a list of what worked fairly well as a first cut -- edit it as you see fit. All values are for all people on all days unless noted otherwise
+I went ahead and set some default values for the manager preferences (example [here](./spreadsheets/manager_preferences.xlsx)) spreadsheet that I'm gonna hand off to Brett. Here's a list of what worked fairly well as a first cut -- edit it as you see fit. All values are for all people on all days unless noted otherwise
 - Tier 1: Imperative
   - Hilltop Opener -- 10
   - Hilltop Closer -- 10
@@ -102,11 +103,11 @@ I went ahead and set some default values for the manager preferences spreadsheet
 - All of the required names here can be adjusted if you open up `main.py` in a text editor and search for `def main(`. The hard-coded definitions are below it. Adjust 'em or inspect 'em as you need to. They each have a description of what they're supposed to do by their assignment, so hopefully they're easy to navigate through
 - The way that the program combines worker preference with management preference is simple multiplication, and it optimizes the product. So if Sally rates her preference of working in Konalani on Monday as a 7, and management rates Sally working in Konalani as a 9, the total "happiness" that happens if Sally works Konalani on Monday is 7*9=**63**. The algorithm optimizes the overall happiness for everyone over the entire week given the constraints (e.g. workers can't work multiple jobs in a day, workers need days off, workers are unavailable when they're out of town, etc.)
 - Worker preferences will be "floored," meaning that a 5.9 actually comes out as a 5. Manager preferences, however, are not floored. This allows management to force some jobs to be filled by setting the management preference for a certain job as an order of magnitude or two higher than a less important job (think: if you *need* to fill jobA, and it would be nice to fill jobB only *after* jobA is filled, and filling jobC is a cherry on top that only should happen after jobA and jobB are filled, you can set the management preference for jobA at 10, the management preference for jobB as 0.99, and the management preference for jobC as 0.09. That way, even if someone rates jobB as 10 and jobA as 1, the "happiness" on jobB (9.9 in this case) will never exceed the "happiness" on jobA (10 in this case)
-- Management can keep someone out of a given task/day by rating them as a 0 for that task/day. If you do this like crazy, though, you'll start to see some folks be assigned to things that they've been banned from, though
+- Management can keep someone out of a given task/day by rating them as a 0 for that task/day. If you do this like crazy, though, you may run into a scheduling problem without a solution because not all the constraints can be satisfied
 - If worker *w1* wants to have days off together with worker *w2*, they have to have the same number of days off per week. Otherwise, it is expected to say that the problem is unsolvable because the following constraints contradict each other:
   - Constraint that *w1* has more (or fewer) off days than *w2*
   - Constraint that *w1* and *w2* are always off at the same time
-  - This may be able to be fixed if OR-Tools's linear solver adds in an `Abs()` method ([docs](https://or-tools.github.io/docs/python/classortools_1_1linear__solver_1_1pywraplp_1_1Solver.html)), but I'm led to believe that I cannot just add in regular absolute value function here; I have to use one on the solver. TODO: Verify this suspicion
+  
 ### What Happens to the Rule-Breakers?
 - If a worker or manager puts that their preference for a task is more than the upper limit (currently 10), it gets adjusted back down to the upper limit
 - If a worker or manager puts that their preference is a non-numeric value or a negative number, it'll go down as a 0
