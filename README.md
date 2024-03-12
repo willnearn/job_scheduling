@@ -22,7 +22,7 @@ If you are going to use the .bat files to run commands, you need to be running *
   - If it complains that you don't have a package installed, we'll need to do some troubleshooting
 
 # Quickstart
-## Overview:
+## Overview
 - This repo is run by main.py. It takes in a file named manager_preferences.xlsx and worker_preferences.xlsx and outputs the best schedule for everyone, given its inputs and constraints
 - Workers rate each of the jobs that they can work 1 (worst) to 10 (best) for each day of the week
 - Managers rate each of the workers from 0 (can't work this shift) to 10 (it would be very good if they worked this shift) on which shifts they want the workers to fill for each day of the week
@@ -44,6 +44,11 @@ If you are going to use the .bat files to run commands, you need to be running *
 ## Outputs
 - output.csv is the schedule
 - output_messages.txt contains error messages from the schedule generation and a list version of how much "happiness" each person on the schedule got
+## How to run the program
+- First, make sure that you set up your installation of python as prescribed in the [Setup](https://github.com/willnearn/job_scheduling/blob/main/README.md#setup----required-software) section above
+- Then, make sure that your manager_preferences.xlsx and worker_preferences.xlsx have values that fit your wants/needs
+- If your setup and inputs are correct, all you need to do is click on **run_me.bat**
+  
 ## Notes
 ### Default Values for Manager Preferences
 I went ahead and set some default values for the manager preferences (example [here](./spreadsheets/manager_preferences.xlsx)) spreadsheet that I'm gonna hand off to Brett. Here's a list of what worked fairly well as a first cut -- edit it as you see fit. All values are for all people on all days unless noted otherwise
@@ -88,26 +93,7 @@ I went ahead and set some default values for the manager preferences (example [h
 - The names of the worker tabs on each preference file **must be the same** (e.g. you can't name Robert's tab on the worker spreadsheet "Robert" and his tab on the management spreadsheet "robert")
 - The manager preferences file must be named manager_preferences.xlsx, and it must live in the same folder as main.py
 - The worker preferences file must be named worker_preferences.xlsx, and it must live in the same folder as main.py
-### How to run the program
-- First, make sure that you set up your installation of python as prescribed in the [Setup](https://github.com/willnearn/job_scheduling/blob/main/README.md#setup----required-software) section above
-- Then, make sure that your manager_preferences.xlsx and worker_preferences.xlsx have values that fit your wants/needs
-- Next, let's run it:
-- On Windows:
-  - Open up a file explorer
-  - Navigate to the folder that holds `main.py`
-  - On the bar at the top that holds the file path, click just to the right of the current folder. The whole file path should now be visible, and it should be highlighted in blue
-  - Hit `backspace` to erase the file path that shows up there and type `cmd`
-  - Hit enter. You are now in the command prompt at the location that holds `main.py`. You can confirm this by typing `dir` and hitting enter. This will show you what files are in the current folder, how much storage they take up, and other fun facts
-  - Call python on main.py. Typically, this means typing `python main.py` in the command prompt and hitting `enter`, but sometimes you need to do `python3 main.py` and hit `enter`
-- On Macs:
-  - `cmd`+`space` to open up the search bar
-  - Type in "Terminal" and select it
-  - Now you are in a terminal. Navigate to the folder that holds `main.py`. Here are some helpers:
-    - `pwd` shows the whole file path that you're at right now
-    - `cd` lets you change the folder that you're in (you can do `cd ..` to go back up)
-    - `ls` lets you see what all items are in the current folder
-  - When you reach the folder that contains `main.py`, type `ls` and hit enter. If main.py shows up, you're there
-  - Now call python on main.py. Typically, this means typing `python main.py` in the command prompt and hitting `enter`, but sometimes you need to do `python3 main.py` and hit `enter`
+
 
 # Getting More Technical
 ### Going Under the Hood
