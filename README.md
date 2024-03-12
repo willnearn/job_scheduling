@@ -10,6 +10,27 @@ This repo will help automate the schedule-making process at Heavenly Hawaiian Co
 
 # Setup -- Required Software
 **TODO-- Write this down when getting Brett setup**
+## Getting This Repo Through Git (Optional but Recommended)
+- Windows
+  - Get Git [here](https://git-scm.com/)
+  - Open Git Bash somewhere that you want to download this repository
+    - 2 ways to do this:
+      1. Open Git Bash anywhere and use `cd <path>` to go to a path (use forward slashes instead of backslashes between folders), `pwd` to see where you are, and `ls` to see what's in the current folder
+      2. Navigate in the file explorer to the folder where you want to download this, right click, and select "Git Bash"
+    - Type `git clone https://github.com/willnearn/job_scheduling.git`.
+      - In previous years this alone has worked, but lately Git has been upping security measures, so they may make you jump through some more hoops
+- MacOS
+  - Do the above, but it might look a little different. I'm on Windows, so I can't test Mac instructions. You likely won't need a Git *Bash* app if Git is installed (you can test this by opening up a terminal and typing `which git`)
+## Getting Python
+- Probably just download [Anaconda](https://docs.anaconda.com/free/anaconda/install/)
+## Dependencies
+- Go to command line and type `pip install -r requirements.txt`
+## Test
+- You should have this repo downloaded now (either someone emails it to you or you got it from Git)
+- Open up a command line/terminal in the location where main.py is
+- type `python main.py`, and hit enter in the command line, and see where it breaks.
+  - If it complains that there's no file found on a .csv file or an .xlsx file, we're doing well. Head to the next step.
+  - If it complains that you don't have a package installed, we'll need to do some troubleshooting
 
 # Quickstart
 ### Default Values for Manager Preferences
