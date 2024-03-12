@@ -1,39 +1,50 @@
 # Job Scheduling
-This repo will help automate the schedule-making process at Heavenly Hawaiian Coffee Farm
-# Overview:
-- Workers rate each of the jobs that they can work 1 (worst) to 10 (best) for each day of the week
-- Managers rate each of the workers on which jobs they want the workers to fill for each day of the week
-- Workers can specify a different number of off days that they want
-- Workers can also specify that they want to be off with someone / don't want to be off with someone during the week (although this is discouraged; it can overdefine the problem, which means that there's no solution)
-- The user pops these preferences into the program, and the program pops out the best schedule possible as a file named "output.csv"
-  - Unless the problem is overdefined, this will be the optimal solution. If it "doesn't look right," tweak the inputs to get a result that looks better for ya
+This repo will help automate the schedule-making process at Heavenly Hawaiian Coffee Farm  
+**Author:** Will Nearn  
+**Contact:** williamnearn@gmail.com  
+**If you're reading this file as a raw text file, you can read it more easily at https://github.com/willnearn/job_scheduling/blob/main/README.md**  
+  
+
 
 # Setup -- Required Software
-**TODO-- Write this down when getting Brett setup**
-## Getting This Repo Through Git (Optional but Recommended)
-- Windows
-  - Get Git [here](https://git-scm.com/)
-  - Make a GitHub account [here](https://github.com/signup)
-  - Open Git Bash somewhere that you want to download this repository
-    - 2 ways to do this:
-      1. Open Git Bash anywhere and use `cd <path>` to go to a path (use forward slashes instead of backslashes between folders), `pwd` to see where you are, and `ls` to see what's in the current folder
-      2. Navigate in the file explorer to the folder where you want to download this, right click, and select "Git Bash"
-    - Type `git clone https://github.com/willnearn/job_scheduling.git`.
-      - In previous years this alone has worked, but lately Git has been upping security measures, so they may make you jump through some more hoops
-- MacOS
-  - Do the above, but it might look a little different. I'm on Windows, so I can't test Mac instructions. You likely won't need a Git *Bash* app if Git is installed (you can test this by opening up a terminal and typing `which git`)
-## Getting Python
-- Probably just download [Anaconda](https://docs.anaconda.com/free/anaconda/install/)
-## Dependencies
-- Go to command line and type `pip install -r requirements.txt`
+If you are going to use the .bat files to run commands, you need to be running **Windows**
+## Software
+- Get Git [here](https://git-scm.com/)
+- Python: Go to the Windows store and get Python. Python 3.11 is certain to work, but you can get a newer version if you want
+## Configuration
+- Get your hands on the file "[click_on_this_to_download_this_repo_from_online.bat](./actions/click_on_this_to_download_this_repo_from_online.bat)", place it where you want to download this repo, and click on it to download
+  - This can be run on anyone's computer as long as they have Git, so if you want to set someone else up with this repo, just send them ./README.md (this file) and ./actions/click_on_this_to_download_this_repo_from_online.bat (the file that downloads the repo)
+- Run [actions/setup_python.bat](./actions/setup_python.bat) by clicking on it
+  - Only do this after installing Python
 ## Test
-- You should have this repo downloaded now (either someone emails it to you or you got it from Git)
-- Open up a command line/terminal in the location where main.py is
-- type `python main.py`, and hit enter in the command line, and see where it breaks.
+- click on ./run_me.bat
   - If it complains that there's no file found on a .csv file or an .xlsx file, we're doing well. Head to the next Quickstart!
   - If it complains that you don't have a package installed, we'll need to do some troubleshooting
 
 # Quickstart
+## Overview:
+- This repo is run by main.py. It takes in a file named manager_preferences.xlsx and worker_preferences.xlsx and outputs the best schedule for everyone, given its inputs and constraints
+- Workers rate each of the jobs that they can work 1 (worst) to 10 (best) for each day of the week
+- Managers rate each of the workers from 0 (can't work this shift) to 10 (it would be very good if they worked this shift) on which shifts they want the workers to fill for each day of the week
+- Workers can specify a different number of off days that they want
+- Workers can also specify that they want to be off with someone / don't want to be off with someone during the week (although this is discouraged; it can overdefine the problem, which means that there's no solution)
+- The user pops these preferences into the program, and the program pops out the best schedule possible as a file named "output.csv"
+  - Unless the problem is overdefined, this will be the optimal solution. If it "doesn't look right," tweak the inputs to get a result that looks better for ya
+  
+## Inputs
+- manager_preferences.xlsx
+  - Here, management rates how much they want each worker on each shift from 0 (not allowed to do it) to 10 (they really want that worker to do that shift)
+  - Tools:
+    - If management wants to change the number of days off that John has, they can alter that from the default of 2 on the "**days_off**" sheet
+    - If workers do/don't want to have days off together, they can alter that on the "**off_together**" and "**not_off_together**" sheets
+- worker_preferences.xlsx
+  - Here, each worker rates how much they want to work each shift from 1 (bad) to 10 (good)
+- main.py can only see files named manager_preferences.xlsx and worker_preferences.xlsx that are located right next to main.py
+- If you just downloaded this repo, you can copy the example manager_preferences.xlsx and worker_preferences.xlsx from the spreadsheets folder
+## Outputs
+- output.csv is the schedule
+- output_messages.txt contains error messages from the schedule generation and a list version of how much "happiness" each person on the schedule got
+## Notes
 ### Default Values for Manager Preferences
 I went ahead and set some default values for the manager preferences (example [here](./spreadsheets/manager_preferences.xlsx)) spreadsheet that I'm gonna hand off to Brett. Here's a list of what worked fairly well as a first cut -- edit it as you see fit. All values are for all people on all days unless noted otherwise
 - Tier 1: Imperative
