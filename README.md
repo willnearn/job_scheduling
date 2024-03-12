@@ -93,6 +93,8 @@ I went ahead and set some default values for the manager preferences (example [h
 - The names of the worker tabs on each preference file **must be the same** (e.g. you can't name Robert's tab on the worker spreadsheet "Robert" and his tab on the management spreadsheet "robert")
 - The manager preferences file must be named manager_preferences.xlsx, and it must live in the same folder as main.py
 - The worker preferences file must be named worker_preferences.xlsx, and it must live in the same folder as main.py
+### Updating the Repo
+- If changes are committed to the online version of the repo and you want to download them, double click on actions/update_me.bat. This will only work if you have Git installed on your computer (see setup instructions)
 
 
 # Getting More Technical
