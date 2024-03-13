@@ -59,3 +59,4 @@
   - [Google OR-Tools](https://developers.google.com/optimization/introduction/python)
   - [Assignment Problem](https://developers.google.com/optimization/assignment)
   - [Assignment Example](https://developers.google.com/optimization/assignment/assignment_example)
+  - [Google OR-Tools Docs](https://or-tools.github.io/docs/python/classortools_1_1linear__solver_1_1pywraplp_1_1Solver.html)
