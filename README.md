@@ -24,6 +24,7 @@ If you are going to use the .bat files to run commands, you need to be running *
 # Quickstart
 ## Overview
 - This repo is run by main.py. It takes in a file named manager_preferences.xlsx and worker_preferences.xlsx and outputs the best schedule for everyone, given its inputs and constraints
+  - Go ahead and open the example manager_preferences.xlsx and worker_preferences.xlsx in the spreadsheets folder and click around so that you can follow along!
 - Workers rate each of the jobs that they can work 1 (worst) to 10 (best) for each day of the week
 - Managers rate each of the workers from 0 (can't work this shift) to 10 (it would be very good if they worked this shift) on which shifts they want the workers to fill for each day of the week
 - Workers can specify a different number of off days that they want
