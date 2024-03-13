@@ -55,4 +55,7 @@
   3. Adjust their days off for that week by adding their name to manager_preferences.xlsx's `days_off` page
 
 ## Notes
-- Helpful: [Google OR-Tools](https://developers.google.com/optimization/introduction/python)
+- Helpful:
+  - [Google OR-Tools](https://developers.google.com/optimization/introduction/python)
+  - [Assignment Problem](https://developers.google.com/optimization/assignment)
+  - [Assignment Example](https://developers.google.com/optimization/assignment/assignment_example)
