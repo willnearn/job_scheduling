@@ -40,8 +40,8 @@ If you are going to use the .bat files to run commands, you need to be running *
     - If workers do/don't want to have days off together, they can alter that on the "**off_together**" and "**not_off_together**" sheets
 - worker_preferences.xlsx
   - Here, each worker rates how much they want to work each shift from 1 (bad) to 10 (good)
-- main.py can only see files named manager_preferences.xlsx and worker_preferences.xlsx ***that are located right next to main.py***
-- If you just downloaded this repo, you can copy the example manager_preferences.xlsx and worker_preferences.xlsx from the spreadsheets folder
+- main.py ***can only see*** files named manager_preferences.xlsx and worker_preferences.xlsx ***that are located right next to main.py***
+- If you just downloaded this repo, you can copy the example manager_preferences.xlsx and worker_preferences.xlsx from the spreadsheets folder and paste 'em right next to main.py
 ## Outputs
 - output.csv is the schedule
 - output_messages.txt contains error messages from the schedule generation and a list version of how much "happiness" each person on the schedule got
