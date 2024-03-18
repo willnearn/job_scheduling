@@ -45,6 +45,7 @@ def cleanPreferenceFiles(worker_file_name,
         wdf.fillna(unable_score) # Fill NaNs with the unable score
         mdf.fillna(unable_score) 
         wdf = wdf.astype(int) # Floor worker scores to an integer number
+        mdf = mdf.astype(float) # Ensure all non-numeric values are conerted over
         wdf[wdf<unable_score] = unable_score # Replace values less than unable_score with unable_score
         mdf[mdf<unable_score] = unable_score 
         mdf[mdf>high_score] = high_score # Replace values above the max with the max value
