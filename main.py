@@ -5,6 +5,7 @@ Assignment Problem Example
 based off of example in https://developers.google.com/optimization/assignment/assignment_example, but modified for my use
 """
 import os
+import sys
 import pandas as pd
 import numpy as np
 import warnings
@@ -121,10 +122,13 @@ def main():
     day_names = list(worker_xlsx[worker_names[0]].head()) # MAKE SURE THAT THE SAME DAY NAMES EXIST ON ALL SHEETS OF THE MANAGER PREFERENCE AND THE WORKER PREFERENCE FILE !!!
     week_preferences = []
     for index in range(len(worker_names)):
-        week_preferences.append(np.multiply(
-            worker_xlsx[worker_names[index]].to_numpy(),
-            manager_xlsx[worker_names[index]].to_numpy()
-        ))    
+        if len(sys.argv) <= 1:
+            week_preferences.append(np.multiply(
+                worker_xlsx[worker_names[index]].to_numpy(),
+                manager_xlsx[worker_names[index]].to_numpy()
+            ))    
+        elif sys.argv[1] == "managers_only":
+            week_preferences.append(manager_xlsx[worker_names[index]].to_numpy())
 
     # Analysis
     num_workers = len(week_preferences)
