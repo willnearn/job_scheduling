@@ -13,62 +13,69 @@ from ortools.linear_solver import pywraplp
 
 
 def cleanPreferenceFiles(worker_file_name,
-                    cleaned_file_name, 
+                    cleaned_file_prefix, 
                     manager_file_name, 
                     unable_score,
                     high_score,
-                    low_reset_score):
-    # Take in the names of the messy worker file, clean it up (partly based on the manager file), and save the cleaned version at `cleaned_file_name`.
+                    low_reset_score, 
+                    not_worker_pages_on_manager_file):
+    # Take in the names of the messy worker file, clean it up (partly based on the manager file), and save the cleaned version at `cleaned_file_prefix`+<original_file_name>.
     # PARAMS:
     # worker_file_name:
     #  - Is a downloaded Google Sheet, where everyone can only edit the page with their name on it
     #  - Should be filled out as "0" for jobs that the worker can't do 
     #  - Should contain (0,1] for jobs that the worker can do, where 1 means that they really want to do that job on that day
-    # cleaned_file_name will be the location of the cleaned version of the file stored at `worker_file_name`
+    # cleaned_file_prefix will be the prefix attached to the cleaned version files that we store
     # manager_file_name should be identical to the worker preferences file except the data points are made by the managers
     # unable_score is the score that indicates that a worker is unfit for a task (due to an exemption, lack of training, etc.)
     # high_score is the highest allowed preference score
     # low_reset_score is the preference score that workers get if they set their preference for a task too low. "Too low" is either of the following:
     #  - A number below unable_score
     #  - The value of unable_score if management says that the worker can do the given task
+    # not_worker_pages_on_manager_file is the name of the pages on manager_file_name that aren't worker sheets
     # RETURNS:
     # void, but it writes to an .xlsx file
+    manipulate_worker_file = True
+    try:
+        worker_file = pd.read_excel(worker_file_name, sheet_name=None, index_col=0)
+    except FileNotFoundError as e:
+        manipulate_worker_file = False
+        print(f"The worker file didn't exist, so we didn't read this in. If you used the \"managers_only\" option, you should be all good. If you want to take workers' preferences into account, you'll need to make a file named {worker_file_name}")
     
-    worker_file = pd.read_excel(worker_file_name, sheet_name=None, index_col=0)
     manager_file = pd.read_excel(manager_file_name, sheet_name=None, index_col=0)
 
-    for name in worker_file.keys():
-        wdf = worker_file[name] #Extract <name>'s preferences page
+    for name in [name for name in manager_file.keys() if name not in not_worker_pages_on_manager_file]:     #name in worker_file.keys():
         mdf = manager_file[name]
-        if wdf.shape != mdf.shape or not wdf.columns.equals(mdf.columns) or not wdf.index.equals(mdf.index):
-            print(f"There's an error on the formatting of {name}'s schedule in {worker_file_name} or {manager_file_name}, either with the row names or the column names -- go check it out")
-            return False
-        wdf.fillna(unable_score) # Fill NaNs with the unable score
         mdf.fillna(unable_score) 
-        wdf = wdf.astype(int) # Floor worker scores to an integer number
         mdf = mdf.astype(float) # Ensure all non-numeric values are conerted over
-        wdf[wdf<unable_score] = unable_score # Replace values less than unable_score with unable_score
         mdf[mdf<unable_score] = unable_score 
         mdf[mdf>high_score] = high_score # Replace values above the max with the max value
-        wdf[wdf>high_score] = high_score
-
-        #Find where workers put that they're unable to do jobs they're able to do and fix it
-        mismatched_indices = wdf[(wdf==unable_score) & (mdf != unable_score)]  
-        if not mismatched_indices.isnull().values.all():
-            print(f"\n{name} screwed up and said that they couldn't work a job that they're trained to do. Resetting the values below that aren't 'NaN' to {low_reset_score}")
-            print(mismatched_indices)
-            with warnings.catch_warnings(): #It gives a warning that `low_reset_score` isn't the right data type?
-                warnings.simplefilter("ignore", category=FutureWarning)
-                wdf[mismatched_indices.notna()] = low_reset_score 
-        
-        worker_file[name] = wdf # Reassign corrected values to our excel spreadsheet
+        if manipulate_worker_file:
+            wdf = worker_file[name] #Extract <name>'s preferences page
+            if wdf.shape != mdf.shape or not wdf.columns.equals(mdf.columns) or not wdf.index.equals(mdf.index):
+                print(f"There's an error on the formatting of {name}'s schedule in {worker_file_name} or {manager_file_name}, either with the row names or the column names -- go check it out")
+                return False
+            wdf.fillna(unable_score) # Fill NaNs with the unable score
+            wdf = wdf.astype(int) # Floor worker scores to an integer number
+            wdf[wdf<unable_score] = unable_score # Replace values less than unable_score with unable_score
+            wdf[wdf>high_score] = high_score
+            #Find where workers put that they're unable to do jobs they're able to do and fix it
+            mismatched_indices = wdf[(wdf==unable_score) & (mdf != unable_score)]  
+            if not mismatched_indices.isnull().values.all():
+                print(f"\n{name} screwed up and said that they couldn't work a job that they're trained to do. Resetting the values below that aren't 'NaN' to {low_reset_score}")
+                print(mismatched_indices)
+                with warnings.catch_warnings(): #It gives a warning that `low_reset_score` isn't the right data type?
+                    warnings.simplefilter("ignore", category=FutureWarning)
+                    wdf[mismatched_indices.notna()] = low_reset_score 
+            worker_file[name] = wdf # Reassign corrected values to our excel spreadsheet
         manager_file[name] = mdf
 
     # Write to Excel
-    with pd.ExcelWriter(cleaned_file_name, engine='xlsxwriter') as writer:
-        for name, df in worker_file.items(): # Editing the isolated DataFrame objects earlier also edits the DataFrame objects inside worker_file
-            df.to_excel(writer, sheet_name=name)
-    with pd.ExcelWriter("cleaned_"+manager_file_name, engine='xlsxwriter') as writer: #User may reference other cells in his manager preferences file, so we're not gonna save the cleaned values to the old location
+    if manipulate_worker_file:
+        with pd.ExcelWriter(cleaned_file_prefix+worker_file_name, engine='xlsxwriter') as writer:
+            for name, df in worker_file.items(): # Editing the isolated DataFrame objects earlier also edits the DataFrame objects inside worker_file
+                df.to_excel(writer, sheet_name=name)
+    with pd.ExcelWriter(cleaned_file_prefix+manager_file_name, engine='xlsxwriter') as writer: #User may reference other cells in his manager preferences file, so we're not gonna save the cleaned values to the old location
         for name, df in manager_file.items(): # Editing the isolated DataFrame objects earlier also edits the DataFrame objects inside worker_file
             df.to_excel(writer, sheet_name=name)
     return True
@@ -94,7 +101,7 @@ def read_in_off_day_requests(xlsx_dict, sheet_name, names):
 def main():
     # CONFIGUREABLE
     dirty_worker_preferences_file_name = "worker_preferences.xlsx" # Name of the file that contains each worker's preferences for each day/shift to work. Each column is a day, each row is a shift, and the values should be above `unable_score` for tasks that they're trained to do, and up to high_score for tasks that they really want to do. Non-integer values will be floored to the nearest integer, and values that are too low are brought back up to `low_reset_score`
-    clean_worker_preferences_file_name = "cleaned_worker_preferences.xlsx" #Transition file that the program generates when it cleans the worker input data. It is deleted at the end of the program.
+    clean_file_prefix = "cleaned_" #Transition file that the program generates when it cleans the worker input data. It is deleted at the end of the program.
     manager_preferences_file_name = "manager_preferences.xlsx" # Excel workbook that has the manager preferences for each worker/day/shift combination, plus any extra sheets for other requirements
     not_off_together_page = "not_off_together" # This is the name of the sheet on the manager preferences workbook that contains the pairs of people that DO NOT WANT to be off together 
     off_together_page = "off_together" # This is the name of the sheet on the manager preferences workbook that contains the pairs of people that WANT to be off together 
@@ -103,23 +110,30 @@ def main():
     unable_score = 0 # If a worker gives this score, that indicates that they can't do the given task -- days off should be given in the manager preferences Excel worksheet
     high_score = 10 # Anything higher than this will be reset to this
     low_reset_score = np.int64(3) #Any score at or below unable_score for a task that a worker is able to do will be reset to this
-
+    not_worker_pages_on_manager_file = [not_off_together_page, off_together_page, days_off_page, "default_preferences"] # This is a list of pages on the managers' sheet that don't represent workers and their preferences. This is being implemented to avoid dependency on a workers preferences file
+    
     # Clean up data
     if not cleanPreferenceFiles(dirty_worker_preferences_file_name, 
-                    clean_worker_preferences_file_name, 
+                    clean_file_prefix, 
                     manager_preferences_file_name, 
                     unable_score,
                     high_score,
-                    low_reset_score):
+                    low_reset_score, 
+                    not_worker_pages_on_manager_file):
         print("\nThere was an error in cleaning up the file. Please investigate. Exiting out of the program. Please re-run this program after fixing the data")
         return
-    manager_preferences_file_name = "cleaned_"+manager_preferences_file_name #User may reference other cells in his manager preferences file, so we're not gonna save the cleaned values to the old location
+    manager_preferences_file_name = clean_file_prefix + manager_preferences_file_name #User may reference other cells in his manager preferences file, so we're not gonna save the cleaned values to the old location
+    worker_preferences_file_name = clean_file_prefix + dirty_worker_preferences_file_name
     # Read in data
-    worker_xlsx = pd.read_excel(clean_worker_preferences_file_name, sheet_name=None, index_col=0)
+    try:
+        worker_xlsx = pd.read_excel(worker_preferences_file_name, sheet_name=None, index_col=0)
+    except FileNotFoundError as e:
+        print(f"Not using file {worker_preferences_file_name} -- skipping loading it in")
+    
     manager_xlsx = pd.read_excel(manager_preferences_file_name, sheet_name=None, index_col=0)
-    worker_names = list(worker_xlsx.keys()) # MAKE SURE THAT THE NAMES ARE THE SAME ON THE MANAGER PREFERENCE FILE AS THE WORKER PREFERENCE FILE !!!
-    job_names = list(worker_xlsx[worker_names[0]].index)  # MAKE SURE THAT THE SAME JOB NAMES EXIST ON ALL SHEETS OF THE MANAGER PREFERENCE AND THE WORKER PREFERENCE FILE !!!
-    day_names = list(worker_xlsx[worker_names[0]].head()) # MAKE SURE THAT THE SAME DAY NAMES EXIST ON ALL SHEETS OF THE MANAGER PREFERENCE AND THE WORKER PREFERENCE FILE !!!
+    worker_names = [name for name in manager_xlsx.keys() if name not in not_worker_pages_on_manager_file] # MAKE SURE THAT THE NAMES ARE THE SAME ON THE MANAGER PREFERENCE FILE AS THE WORKER PREFERENCE FILE !!!
+    job_names = list(manager_xlsx[worker_names[0]].index)  # MAKE SURE THAT THE SAME JOB NAMES EXIST ON ALL SHEETS OF THE MANAGER PREFERENCE AND THE WORKER PREFERENCE FILE !!!
+    day_names = list(manager_xlsx[worker_names[0]].head()) # MAKE SURE THAT THE SAME DAY NAMES EXIST ON ALL SHEETS OF THE MANAGER PREFERENCE AND THE WORKER PREFERENCE FILE !!!
     week_preferences = []
     for index in range(len(worker_names)):
         if len(sys.argv) <= 1:
@@ -127,7 +141,7 @@ def main():
                 worker_xlsx[worker_names[index]].to_numpy(),
                 manager_xlsx[worker_names[index]].to_numpy()
             ))    
-        elif sys.argv[1] == "managers_only":
+        elif sys.argv[1] == "managers_only" and worker_names[index] not in not_worker_pages_on_manager_file:
             week_preferences.append(manager_xlsx[worker_names[index]].to_numpy())
 
     # Analysis
@@ -251,7 +265,8 @@ def main():
         print("  > This most cumbersome constraints are 'I wanna be off together with John Doe' or 'I don't wanna be off together with John Doe.' Try to get the workers just to set their own daily preferences on their preference sheet (e.g. both workers setting all their preferences on Tuesday to the lowest value in order to increase the likelihood that they'll have a day off together)")
         print("  > The next most cumbersome constraints are the days off. Hopefully, you shouldn't need to rearrange these too much, but obviously if we're overstaffed and everyone wants to work 6/6 days, we just aren't going to have enough jobs to go around. If you're wildly overstaffed, and there still aren't enough jobs to go around for everyone to work 4 days a week, you can add more jobs (rows) on the preferences sheets")
         print("  > Once you solve these two things, you should be good :)")
-    os.remove(clean_worker_preferences_file_name) #Cleanup!
+    if os.path.exists(worker_preferences_file_name):
+        os.remove(worker_preferences_file_name) #Cleanup!
     os.remove(manager_preferences_file_name) # Cleanup!
 
 
