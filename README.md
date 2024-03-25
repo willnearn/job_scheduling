@@ -50,7 +50,7 @@ If you are going to use the .bat files to run commands, you need to be running *
 - Then, make sure that your manager_preferences.xlsx and worker_preferences.xlsx have values that fit your wants/needs
 - If your setup and inputs are correct, all you need to do is double click on **run_me.bat**
   
-## Notes
+# Notes
 ### Default Values for Manager Preferences
 I went ahead and set some default values for the manager preferences (example [here](./spreadsheets/manager_preferences.xlsx)) spreadsheet that I'm gonna hand off to Brett. Here's a list of what worked fairly well as a first cut -- edit it as you see fit. All values are for all people on all days unless noted otherwise
 - Tier 1: Imperative
