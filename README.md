@@ -89,6 +89,8 @@ I went ahead and set some default values for the manager preferences (example [h
 - Leave A1 empty, and name cell B1 "days off" or give it another name that floats your boat
 - Name cell A2 after who wants a different number of days off, and put the different number of days off in cell B2
   - A2 must have the name of the person as it's listed on the name of their spreadsheet tab
+### How to not take workers' preferences into account
+- Run run_me_managers_only.bat instead of run_me.bat
 ### Miscellaneous Pitfalls and Standards
 - The column (days) and row (jobs) names for all of the preference sheets on manager_preferences.xlsx *and* worker_preferences.xlsx **must be the same**
 - The names of the worker tabs on each preference file **must be the same** (e.g. you can't name Robert's tab on the worker spreadsheet "Robert" and his tab on the management spreadsheet "robert")
